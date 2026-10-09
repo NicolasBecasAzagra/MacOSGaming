@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MacOSGaming — High Performance PC Gaming on Apple Silicon Macs</title>
+  <meta name="description" content="Open-source, legal, and native macOS ecosystem to configure, launch, monitor, and diagnose Windows PC games on Apple Silicon (M1/M2/M3/M4) Macs.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(22, 29, 44, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text: #f0f6fc;
+      --text-muted: #8b949e;
+      --accent: #2997ff;
+      --accent-hover: #0077ed;
+      --accent-green: #30d158;
+      --accent-orange: #ff9f0a;
+      --accent-red: #ff453a;
+      --terminal-bg: #0a0c10;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 20% 15%, rgba(41, 151, 255, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 80% 25%, rgba(48, 209, 88, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 50% 80%, rgba(138, 43, 226, 0.08) 0%, transparent 50%);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Navigation */
+    header {
+      padding: 24px 0;
+      border-bottom: 1px solid var(--card-border);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(9, 13, 22, 0.85);
+    }
+
+    .nav-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .brand-badge {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      background: rgba(41, 151, 255, 0.15);
+      color: var(--accent);
+      border-radius: 12px;
+      font-weight: 600;
+      border: 1px solid rgba(41, 151, 255, 0.3);
+    }
+
+    nav {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+
+    nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    nav a:hover {
+      color: var(--text);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(41, 151, 255, 0.35);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+      transform: translateY(-1px);
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 80px 0 60px;
+      text-align: center;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      font-size: 0.85rem;
+      color: var(--accent);
+      background: rgba(41, 151, 255, 0.12);
+      border: 1px solid rgba(41, 151, 255, 0.25);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-size: 3.4rem;
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 24px;
+      background: linear-gradient(180deg, #ffffff 0%, #a2b0cb 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      max-width: 760px;
+      margin: 0 auto 36px;
+    }
+
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 50px;
+      flex-wrap: wrap;
+    }
+
+    .preview-wrapper {
+      margin-top: 20px;
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    }
+
+    .preview-wrapper img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Features */
+    .features {
+      padding: 90px 0;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .section-title h2 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .section-title p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 30px;
+      backdrop-filter: blur(10px);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(41, 151, 255, 0.4);
+    }
+
+    .card-icon {
+      font-size: 2rem;
+      margin-bottom: 16px;
+      display: inline-block;
+    }
+
+    .feature-card h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .feature-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.55;
+    }
+
+    /* Code Terminal */
+    .quick-start {
+      padding: 60px 0;
+      background: rgba(0, 0, 0, 0.25);
+    }
+
+    .terminal-box {
+      background: var(--terminal-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      overflow: hidden;
+      max-width: 800px;
+      margin: 0 auto;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .terminal-header {
+      background: rgba(255, 255, 255, 0.04);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #ff5f56; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #27c93f; }
+
+    .terminal-title {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-left: 10px;
+      font-family: monospace;
+    }
+
+    .terminal-body {
+      padding: 24px;
+      font-family: 'SF Mono', Monaco, Consolas, monospace;
+      font-size: 0.9rem;
+      color: #79c0ff;
+      overflow-x: auto;
+    }
+
+    .terminal-body pre {
+      margin: 0;
+    }
+
+    .comment { color: #8b949e; }
+    .command { color: #d2a8ff; font-weight: 600; }
+    .success { color: #7ee787; }
+
+    /* Footer */
+    footer {
+      padding: 50px 0 30px;
+      border-top: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header>
+    <div class="container nav-inner">
+      <a href="#" class="brand">
+        <span>🎮 MacOSGaming</span>
+        <span class="brand-badge">v0.1.0</span>
+      </a>
+      <nav>
+        <a href="#features">Features</a>
+        <a href="#quickstart">Quick Start</a>
+        <a href="https://github.com/NicolasBecasAzagra/MacOSGaming/blob/main/docs/roadmap.md" target="_blank">Roadmap</a>
+        <a href="https://github.com/NicolasBecasAzagra/MacOSGaming/releases/tag/v0.1.0" class="btn btn-primary">Download v0.1.0</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <span class="hero-tag">Native macOS • Apple Silicon M1-M4 • Open Source (MIT)</span>
+      <h1>Gaming on Apple Silicon,<br>Engineered with Precision.</h1>
+      <p>
+        The enterprise-grade, legal, and native macOS ecosystem to configure, launch, monitor, 
+        and diagnose Windows PC games on Apple Silicon Macs with zero vendor lock-in.
+      </p>
+
+      <div class="hero-actions">
+        <a href="https://github.com/NicolasBecasAzagra/MacOSGaming/releases/tag/v0.1.0" class="btn btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download CLI v0.1.0 (ARM64)
+        </a>
+        <a href="https://github.com/NicolasBecasAzagra/MacOSGaming" target="_blank" class="btn btn-secondary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          View Source on GitHub
+        </a>
+      </div>
+
+      <div class="preview-wrapper">
+        <img src="../screenshots/dashboard_preview.png" alt="MacOSGaming App Dashboard Interface Preview">
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="features">
+    <div class="container">
+      <div class="section-title">
+        <h2>Built from the Ground Up for Mac Gamers</h2>
+        <p>Combining the power of Swift 6, Wine, DXMT, and deterministic hardware inspection.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="feature-card">
+          <span class="card-icon">⚡</span>
+          <h3>Native Swift 6 & SwiftUI</h3>
+          <p>Instant startup, zero runtime wrapper bloat (<60 MB memory footprint), and deep integration with Darwin/Mach kernel APIs and Metal 3 pipelines.</p>
+        </div>
+
+        <div class="feature-card">
+          <span class="card-icon">🛡️</span>
+          <h3>Anti-Cheat Sentinel Gate</h3>
+          <p>A deterministic pre-flight policy checker that strictly blocks games requiring kernel-level drivers (Ring-0) before execution, keeping your system safe and clean.</p>
+        </div>
+
+        <div class="feature-card">
+          <span class="card-icon">🩺</span>
+          <h3>Hardware Readiness Score</h3>
+          <p>Automated evaluation of your Apple Silicon tier, unified memory contention, Rosetta 2 runtime readiness, and macOS 15+ AVX2 instruction support.</p>
+        </div>
+
+        <div class="feature-card">
+          <span class="card-icon">📚</span>
+          <h3>Steam Library Discovery</h3>
+          <p>Automated ACF manifest parser that detects your installed Windows and Mac titles, matches them to validated profiles, and provisions sandboxed prefixes.</p>
+        </div>
+
+        <div class="feature-card">
+          <span class="card-icon">📦</span>
+          <h3>Zero-Vendoring Architecture</h3>
+          <p>We never track or ship pirated binaries or proprietary Apple frameworks. Wine, DXMT, and DXVK are fetched transparently on user request.</p>
+        </div>
+
+        <div class="feature-card">
+          <span class="card-icon">🔒</span>
+          <h3>Zero-Leakage Privacy</h3>
+          <p>Automated anonymization strips absolute paths and personal usernames from validation telemetry. Telemetry is strictly opt-in and off by default.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Start Terminal Section -->
+  <section id="quickstart" class="quick-start">
+    <div class="container">
+      <div class="section-title">
+        <h2>Get Started in Seconds</h2>
+        <p>Run via Swift Package Manager without complex installation steps.</p>
+      </div>
+
+      <div class="terminal-box">
+        <div class="terminal-header">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-yellow"></span>
+          <span class="dot dot-green"></span>
+          <span class="terminal-title">zsh — Terminal</span>
+        </div>
+        <div class="terminal-body">
+          <pre>
+<span class="comment"># 1. Clone the repository</span>
+<span class="command">git clone https://github.com/NicolasBecasAzagra/MacOSGaming.git</span>
+<span class="command">cd MacOSGaming</span>
+
+<span class="comment"># 2. Run the native SwiftUI desktop application</span>
+<span class="command">swift run MacOSGamingApp</span>
+
+<span class="comment"># 3. Or use the powerful CLI tool directly</span>
+<span class="command">swift run macosgaming doctor</span>
+<span class="success">  GAMING READINESS SCORE: [ 100 / 100 ]</span>
+
+<span class="comment"># 4. Launch your Steam game safely with Wine & DXMT</span>
+<span class="command">swift run macosgaming launch elden-ring --offline</span>
+          </pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>
+        MacOSGaming is open-source software released under the <a href="https://github.com/NicolasBecasAzagra/MacOSGaming/blob/main/LICENSE">MIT License</a>.
+      </p>
+      <p style="margin-top: 8px;">
+        Designed & engineered with Swift for Apple Silicon Macs.
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>
