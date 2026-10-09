@@ -141,7 +141,7 @@ El proyecto sigue una hoja de ruta estructurada por fases con entregables verifi
 - ✅ **Fase 2:** Integración con Steam, pipeline de lanzamiento real y gestión de dependencias.
 - ✅ **Fase 3:** Protocolo de validación en juegos reales, hardening de señales y diseño UI.
 - ✅ **Fase 4:** Aplicación nativa macOS en SwiftUI con arquitectura reactiva MVVM.
-- 🚀 **Fase 5:** Primer release público (`v0.1.0`), documentación de contribución y comunidad.
+- 🚀 **Fase 5:** Releases públicos (`v0.1.0` / `v0.1.1`), landing page, documentación de contribución y comunidad.
 
 Consulta el documento completo en **[docs/roadmap.md](docs/roadmap.md)**.
 
