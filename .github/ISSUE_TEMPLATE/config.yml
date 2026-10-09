@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: MacOSGaming Documentation
+    url: https://nicolasbecasazagra.github.io/MacOSGaming/
+    about: Read our online guides, quick start, and game compatibility matrix.
+  - name: Contributing Guidelines
+    url: https://github.com/NicolasBecasAzagra/MacOSGaming/blob/main/CONTRIBUTING.md
+    about: Learn how to set up your development environment and submit pull requests.

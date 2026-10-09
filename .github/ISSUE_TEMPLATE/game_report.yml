@@ -1,0 +1,148 @@
+name: Game Compatibility Report
+description: Report whether a Windows or native PC game works or does not work on your Apple Silicon Mac
+title: "[GAME REPORT]: <Game Title>"
+labels: ["game-report", "community-validation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for submitting a community validation report! Your report helps maintain our verified game compatibility matrix on Apple Silicon.
+        Please ensure all shared logs are **sanitized** (remove personal user account names, license keys, and private paths).
+
+  - type: input
+    id: game_title
+    attributes:
+      label: Game Title
+      description: The exact title of the game.
+      placeholder: "e.g., Cyberpunk 2077, Elden Ring, Hades II"
+    validations:
+      required: true
+
+  - type: input
+    id: steam_app_id
+    attributes:
+      label: Steam App ID / Digital Store URL
+      description: The Steam App ID or link to the game in a digital storefront (Steam, GOG, Epic Games).
+      placeholder: "e.g., 1091500 or https://store.steampowered.com/app/1091500/"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: mac_chip
+    attributes:
+      label: Apple Silicon Chip
+      description: Select the Apple Silicon processor in your Mac.
+      options:
+        - "M1"
+        - "M1 Pro"
+        - "M1 Max"
+        - "M1 Ultra"
+        - "M2"
+        - "M2 Pro"
+        - "M2 Max"
+        - "M2 Ultra"
+        - "M3"
+        - "M3 Pro"
+        - "M3 Max"
+        - "M4"
+        - "M4 Pro"
+        - "M4 Max"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mac_ram
+    attributes:
+      label: Unified Memory (RAM)
+      description: Total unified memory available on your system.
+      options:
+        - "8 GB"
+        - "16 GB"
+        - "18 GB"
+        - "24 GB"
+        - "32 GB"
+        - "36 GB"
+        - "48 GB"
+        - "64 GB"
+        - "96 GB"
+        - "128 GB"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: macos_version
+    attributes:
+      label: macOS Version
+      description: The macOS release running on your machine.
+      options:
+        - "macOS 15 Sequoia (15.0+)"
+        - "macOS 14 Sonoma (14.0+)"
+        - "macOS 13 Ventura (13.0+)"
+        - "macOS Pre-release / Beta"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: runtime_used
+    attributes:
+      label: Runtime & Graphics Layer Used
+      description: Which compatibility runtime was used to run the game?
+      options:
+        - "Native macOS (Metal / ARM64)"
+        - "Wine-CX + DXMT (DirectX 11 via Metal)"
+        - "Wine-CX + DXVK (DirectX 9-11 via Vulkan/MoltenVK)"
+        - "CrossOver 24+"
+        - "Apple Game Porting Toolkit / D3DMetal (User-provided evaluation)"
+        - "Rosetta 2 (x86_64 Emulation)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: test_result
+    attributes:
+      label: Compatibility Result
+      description: What was the outcome of your gameplay test?
+      options:
+        - "Flawless / Native: Runs at 60+ FPS with zero graphical glitches"
+        - "Playable: Runs smoothly with minor tweaks or occasional drops"
+        - "Playable Offline Only: Multiplayer blocked by anti-cheat; single-player works"
+        - "Poor Performance: Frequent stutters, low FPS, or heavy graphical bugs"
+        - "Unplayable / Crash: Crashes at launch or during intro"
+        - "Blocked by Anti-Cheat: Game refuses to launch due to kernel driver requirement"
+    validations:
+      required: true
+
+  - type: input
+    id: fps_estimate
+    attributes:
+      label: Performance & Average FPS
+      description: Estimated framerate, resolution, and in-game graphical preset.
+      placeholder: "e.g., 55-60 FPS at 1080p High Preset"
+    validations:
+      required: false
+
+  - type: textarea
+    id: configuration_steps
+    attributes:
+      label: Configuration & Tweaks
+      description: Detail any special environment variables, Wine prefixes, or launch flags required.
+      placeholder: "e.g., WINEMSYNC=1 DXMT_CONFIG=... --offline"
+    validations:
+      required: false
+
+  - type: textarea
+    id: sanitized_logs
+    attributes:
+      label: Sanitized Diagnostic Logs
+      description: Paste terminal logs or output from `macosgaming doctor` / `macosgaming launch <id>`. **Do not include private usernames or paths.**
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional_notes
+    attributes:
+      label: Additional Notes & Evidence
+      description: Add any screenshots, controller support observations, or publisher references.
+    validations:
+      required: false

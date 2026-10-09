@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compatibility Matrix &bull; MacOSGaming (Apple Silicon)</title>
+  <meta name="description" content="Verified game compatibility matrix for Windows PC and native games running on Apple Silicon (M1-M4) Macs via MacOSGaming.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(18, 24, 38, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary: #3b82f6;
+      --primary-glow: rgba(59, 130, 246, 0.35);
+      --accent: #06b6d4;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', Menlo, monospace;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.08) 0px, transparent 50%);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(9, 13, 22, 0.85);
+      border-bottom: 1px solid var(--card-border);
+      padding: 16px 0;
+    }
+
+    .nav-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+
+    .brand-badge {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--primary);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    nav {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    nav a:hover, nav a.active {
+      color: var(--text);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      border: 1px solid var(--primary);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 0 16px var(--primary-glow);
+      transform: translateY(-1px);
+    }
+
+    /* Page Title & Stats */
+    .page-header {
+      padding: 48px 0 24px;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      max-width: 800px;
+      margin-bottom: 32px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+      backdrop-filter: blur(12px);
+    }
+
+    .stat-num {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+
+    /* Filter & Search Toolbar */
+    .toolbar {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 260px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px 16px 10px 40px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--primary);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .filter-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    select.filter-select {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* Table Styles */
+    .table-wrapper {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      overflow-x: auto;
+      margin-bottom: 48px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    thead {
+      background: rgba(0, 0, 0, 0.25);
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    th {
+      padding: 14px 18px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      transition: background 0.15s;
+    }
+
+    tbody tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    td {
+      padding: 16px 18px;
+      vertical-align: top;
+      font-size: 0.9rem;
+    }
+
+    .game-title {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .game-publisher {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .link-steam {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .link-steam:hover {
+      text-decoration: underline;
+    }
+
+    .link-source {
+      color: var(--primary);
+      text-decoration: none;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+    }
+
+    .link-source:hover {
+      text-decoration: underline;
+    }
+
+    /* Badges */
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .badge-native {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-likely {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .badge-windows {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .badge-blocked {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .ac-badge {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .badge-ac-kernel {
+      color: #f87171;
+    }
+
+    .badge-ac-userspace {
+      color: #fbbf24;
+    }
+
+    .badge-ac-none {
+      color: #34d399;
+    }
+
+    .ac-type {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .policy-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .badge-policy-direct {
+      background: rgba(16, 185, 129, 0.1);
+      color: #34d399;
+    }
+
+    .badge-policy-offline {
+      background: rgba(245, 158, 11, 0.1);
+      color: #fbbf24;
+    }
+
+    .badge-policy-blocked {
+      background: rgba(239, 68, 68, 0.1);
+      color: #f87171;
+    }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #e2e8f0;
+    }
+
+    .policy-notice-text {
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+      margin-bottom: 6px;
+    }
+
+    .sources-links {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .no-results {
+      padding: 48px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      display: none;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--card-border);
+      padding: 36px 0;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    footer a {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="container nav-inner">
+      <a href="index.html" class="brand">
+        <span>🎮 MacOSGaming</span>
+        <span class="brand-badge">v0.1.1</span>
+      </a>
+      <nav>
+        <a href="index.html">Overview</a>
+        <a href="index.html#features">Features</a>
+        <a href="compatibility.html" class="active">Compatibility Matrix</a>
+        <a href="https://github.com/NicolasBecasAzagra/MacOSGaming/issues/new?template=game_report.yml" target="_blank" class="btn btn-primary">+ Submit Game Report</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container">
+    <div class="page-header">
+      <span class="hero-tag">Verified Compatibility Matrix &bull; Apple Silicon M1-M4</span>
+      <h1>Game Compatibility on macOS</h1>
+      <p class="subtitle">
+        Independent, verified technical compatibility profiles for Windows and native PC games running on Apple Silicon Macs. 
+        Filter by launch policy, graphics runtime, and anti-cheat mechanism.
+      </p>
+
+      <!-- Statistics -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-num" id="stat-total">8</div>
+          <div class="stat-label">Profiles Cataloged</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" style="color: #34d399;" id="stat-verified">8</div>
+          <div class="stat-label">Verified Confidence</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" style="color: #60a5fa;" id="stat-playable">5</div>
+          <div class="stat-label">Playable on Apple Silicon</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" style="color: #f87171;" id="stat-blocked">2</div>
+          <div class="stat-label">Kernel Anti-Cheat Blocked</div>
+        </div>
+      </div>
+
+      <!-- Filter Toolbar -->
+      <div class="toolbar">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" placeholder="Search by game title, publisher, or ID..." autocomplete="off">
+        </div>
+
+        <div class="filter-group">
+          <button class="filter-btn active" data-filter="all">All Games</button>
+          <button class="filter-btn" data-filter="native_macos">Native macOS</button>
+          <button class="filter-btn" data-filter="likely_compatible">Likely Compatible</button>
+          <button class="filter-btn" data-filter="requires_windows">Requires Windows</button>
+          <button class="filter-btn" data-filter="not_supported">Not Supported</button>
+        </div>
+
+        <div>
+          <select class="filter-select" id="anticheat-select">
+            <option value="all">All Anti-Cheat Types</option>
+            <option value="none">No Anti-Cheat (Offline)</option>
+            <option value="userspace">Userspace (VAC)</option>
+            <option value="kernel">Kernel Ring-0 (EAC / BattlEye / Vanguard)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrapper">
+        <table id="matrix-table">
+          <thead>
+            <tr>
+              <th style="min-width: 220px;">Game & Publisher</th>
+              <th style="min-width: 150px;">Status</th>
+              <th style="min-width: 180px;">Anti-Cheat</th>
+              <th style="min-width: 140px;">Launch Policy</th>
+              <th style="min-width: 120px;">Runtime</th>
+              <th style="min-width: 340px;">Policy Notice & Verification</th>
+            </tr>
+          </thead>
+          <tbody id="matrix-tbody">
+            <tr class="game-row" data-id="cs2" data-title="counter-strike 2" data-publisher="valve corporation" data-status="likely_compatible" data-anticheat="userspace" data-policy="allow_direct">
+              <td class="col-game">
+                <div class="game-title">Counter-Strike 2</div>
+                <div class="game-publisher">Valve Corporation &bull; <a href="https://store.steampowered.com/app/730/" target="_blank" class="link-steam">Steam #730</a></div>
+              </td>
+              <td class="col-status">
+                <span class="status-badge badge-likely">Likely Compatible</span>
+              </td>
+              <td class="col-anticheat">
+                <span class="ac-badge badge-ac-userspace">Valve Anti-Cheat (VAC)</span>
+                <div class="ac-type">userspace &bull; Offline OK</div>
+              </td>
+              <td class="col-policy">
+                <span class="policy-badge badge-policy-direct">Direct Launch</span>
+              </td>
+              <td class="col-runtime">
+                <code>d3dmetal_user_provided</code>
+              </td>
+              <td class="col-notice">
+                <p class="policy-notice-text">Valve officially confirmed that Counter-Strike 2 will NOT be released on macOS (FAQ Oct 2023). It executes via compatibility layers (CrossOver/GPTK). Multiplayer matchmaking with VAC experiences frequent session authentication drops ('VAC was unable to verify your game session'); permanent ban risk under Wine remains officially unverified.</p>
+                <div class="sources-links">Sources: <a href="https://store.steampowered.com/app/730/CounterStrike_2/" target="_blank" class="link-source" title="https://store.steampowered.com/app/730/CounterStrike_2/">[1]</a> <a href="https://en.wikipedia.org/wiki/Counter-Strike_2" target="_blank" class="link-source" title="https://en.wikipedia.org/wiki/Counter-Strike_2">[2]</a></div>
+              </td>
+            </tr>
+            <tr class="game-row" data-id="dota-2" data-title="dota 2" data-publisher="valve corporation" data-status="native_macos" data-anticheat="none" data-policy="allow_direct">
+              <td class="col-game">
+                <div class="game-title">Dota 2</div>
+                <div class="game-publisher">Valve Corporation &bull; <a href="https://store.steampowered.com/app/570/" target="_blank" class="link-steam">Steam #570</a></div>
+              </td>
+              <td class="col-status">
+                <span class="status-badge badge-native">Native macOS</span>
+              </td>
+              <td class="col-anticheat">
+                <span class="ac-badge badge-ac-none">Valve Anti-Cheat (VAC Native)</span>
+                <div class="ac-type">none &bull; Offline OK</div>
+              </td>
+              <td class="col-policy">
+                <span class="policy-badge badge-policy-direct">Direct Launch</span>
+              </td>
+              <td class="col-runtime">
+                <code>metal_native</code>
+              </td>
+              <td class="col-notice">
+                <p class="policy-notice-text">Dota 2 is officially supported natively on macOS through Steam, utilizing MoltenVK for Vulkan-to-Metal translation and running seamlessly on Apple Silicon via Rosetta 2.</p>
+                <div class="sources-links">Sources: <a href="https://store.steampowered.com/app/570/Dota_2/" target="_blank" class="link-source" title="https://store.steampowered.com/app/570/Dota_2/">[1]</a> <a href="https://github.com/KhronosGroup/MoltenVK" target="_blank" class="link-source" title="https://github.com/KhronosGroup/MoltenVK">[2]</a></div>
+              </td>
+            </tr>
+            <tr class="game-row" data-id="elden-ring" data-title="elden ring" data-publisher="fromsoftware / bandai namco" data-status="likely_compatible" data-anticheat="kernel" data-policy="allow_offline_only">
+              <td class="col-game">
+                <div class="game-title">Elden Ring</div>
+                <div class="game-publisher">FromSoftware / Bandai Namco &bull; <a href="https://store.steampowered.com/app/1245620/" target="_blank" class="link-steam">Steam #1245620</a></div>
+              </td>
+              <td class="col-status">
+                <span class="status-badge badge-likely">Likely Compatible</span>
+              </td>
+              <td class="col-anticheat">
+                <span class="ac-badge badge-ac-kernel">Easy Anti-Cheat (EAC)</span>
+                <div class="ac-type">kernel_ring0 &bull; Offline OK</div>
+              </td>
+              <td class="col-policy">
+                <span class="policy-badge badge-policy-offline">Offline Only</span>
+              </td>
+              <td class="col-runtime">
+                <code>d3dmetal_user_provided</code>
+              </td>
+              <td class="col-notice">
+                <p class="policy-notice-text">Elden Ring renders smoothly via D3DMetal (DirectX 12). Easy Anti-Cheat (EAC) fails on macOS Wine, preventing online multiplayer connectivity. The game must be launched in offline single-player mode.</p>
+                <div class="sources-links">Sources: <a href="https://store.steampowered.com/app/1245620/ELDEN_RING/" target="_blank" class="link-source" title="https://store.steampowered.com/app/1245620/ELDEN_RING/">[1]</a> <a href="https://developer.apple.com/games/" target="_blank" class="link-source" title="https://developer.apple.com/games/">[2]</a></div>
+              </td>
+            </tr>
+            <tr class="game-row" data-id="fortnite" data-title="fortnite" data-publisher="epic games" data-status="not_supported" data-anticheat="kernel" data-policy="block_kernel_anticheat">
+              <td class="col-game">
+                <div class="game-title">Fortnite</div>
+                <div class="game-publisher">Epic Games &bull; <span class="text-muted">Standalone</span></div>
+              </td>
+              <td class="col-status">
+                <span class="status-badge badge-blocked">Not Supported</span>
+              </td>
+              <td class="col-anticheat">
+                <span class="ac-badge badge-ac-kernel">BattlEye / Easy Anti-Cheat</span>
+                <div class="ac-type">kernel_ring0 &bull; Online Only</div>
+              </td>
+              <td class="col-policy">
+                <span class="policy-badge badge-policy-blocked">Sentinel Blocked</span>
+              </td>
+              <td class="col-runtime">
+                <code>dxmt</code>
+              </td>
+              <td class="col-notice">
+                <p class="policy-notice-text">Fortnite employs kernel-level anti-cheat (BattlEye & Easy Anti-Cheat) on Windows. The native Mac version has been frozen at Chapter 2 Season 3 (2020) and cannot connect to current season servers. The Windows version cannot run in Wine or virtual machines. Cloud gaming (GeForce NOW or Xbox Cloud Gaming) is required on Mac.</p>
+                <div class="sources-links">Sources: <a href="https://en.wikipedia.org/wiki/Fortnite" target="_blank" class="link-source" title="https://en.wikipedia.org/wiki/Fortnite">[1]</a> <a href="https://en.wikipedia.org/wiki/Easy_Anti-Cheat" target="_blank" class="link-source" title="https://en.wikipedia.org/wiki/Easy_Anti-Cheat">[2]</a></div>
+              </td>
+            </tr>
+            <tr class="game-row" data-id="gta-v" data-title="grand theft auto v" data-publisher="rockstar games" data-status="likely_compatible" data-anticheat="kernel" data-policy="allow_offline_only">
+              <td class="col-game">
+                <div class="game-title">Grand Theft Auto V</div>
+                <div class="game-publisher">Rockstar Games &bull; <a href="https://store.steampowered.com/app/271590/" target="_blank" class="link-steam">Steam #271590</a></div>
+              </td>
+              <td class="col-status">
+                <span class="status-badge badge-likely">Likely Compatible</span>
+              </td>
+              <td class="col-anticheat">
+                <span class="ac-badge badge-ac-kernel">BattlEye</span>
+                <div class="ac-type">kernel_ring0 &bull; Offline OK</div>
+              </td>
+              <td class="col-policy">
+                <span class="policy-badge badge-policy-offline">Offline Only</span>
+              </td>
+              <td class="col-runtime">
+                <code>dxmt</code>
+              </td>
+              <td class="col-notice">
+                <p class="policy-notice-text">Rockstar integrated BattlEye into GTA V in September 2024. Story Mode is 100% playable by passing '-nobattleye'. Official GTA Online multiplayer servers require the BattlEye kernel driver and are blocked under Wine.</p>
+                <div class="sources-links">Sources: <a href="https://store.steampowered.com/app/271590/Grand_Theft_Auto_V/" target="_blank" class="link-source" title="https://store.steampowered.com/app/271590/Grand_Theft_Auto_V/">[1]</a> <a href="https://github.com/3Shain/dxmt" target="_blank" class="link-source" title="https://github.com/3Shain/dxmt">[2]</a></div>
+              </td>
+            </tr>
+            <tr class="game-row" data-id="league-of-legends" data-title="league of legends" data-publisher="riot games" data-status="native_macos" data-anticheat="none" data-policy="allow_direct">
+              <td class="col-game">
+                <div class="game-title">League of Legends</div>
+                <div class="game-publisher">Riot Games &bull; <span class="text-muted">Standalone</span></div>
+              </td>
+              <td class="col-status">
+                <span class="status-badge badge-native">Native macOS</span>
+              </td>
+              <td class="col-anticheat">
+                <span class="ac-badge badge-ac-none">Riot Vanguard (Windows Only)</span>
+                <div class="ac-type">none &bull; Offline OK</div>
+              </td>
+              <td class="col-policy">
+                <span class="policy-badge badge-policy-direct">Direct Launch</span>
+              </td>
+              <td class="col-runtime">
+                <code>metal_native</code>
+              </td>
+              <td class="col-notice">
+                <p class="policy-notice-text">League of Legends provides an official native macOS client maintained by Riot Games. While Windows requires Vanguard (since Patch 14.9), the macOS client is officially exempt and runs directly via Metal.</p>
+                <div class="sources-links">Sources: <a href="https://en.wikipedia.org/wiki/League_of_Legends" target="_blank" class="link-source" title="https://en.wikipedia.org/wiki/League_of_Legends">[1]</a> <a href="https://developer.apple.com/metal/" target="_blank" class="link-source" title="https://developer.apple.com/metal/">[2]</a></div>
+              </td>
+            </tr>
+            <tr class="game-row" data-id="rocket-league" data-title="rocket league" data-publisher="psyonix / epic games" data-status="requires_windows" data-anticheat="kernel" data-policy="allow_offline_only">
+              <td class="col-game">
+                <div class="game-title">Rocket League</div>
+                <div class="game-publisher">Psyonix / Epic Games &bull; <a href="https://store.steampowered.com/app/252950/" target="_blank" class="link-steam">Steam #252950</a></div>
+              </td>
+              <td class="col-status">
+                <span class="status-badge badge-windows">Requires Windows</span>
+              </td>
+              <td class="col-anticheat">
+                <span class="ac-badge badge-ac-kernel">Easy Anti-Cheat (EAC)</span>
+                <div class="ac-type">kernel_ring0 &bull; Offline OK</div>
+              </td>
+              <td class="col-policy">
+                <span class="policy-badge badge-policy-offline">Offline Only</span>
+              </td>
+              <td class="col-runtime">
+                <code>dxmt</code>
+              </td>
+              <td class="col-notice">
+                <p class="policy-notice-text">Psyonix dropped native macOS support in 2020 and added Easy Anti-Cheat (EAC) in April 2024. While local matches and offline training function under Wine/DXMT, online multiplayer queues reject Wine clients. Full online play requires Windows or cloud gaming.</p>
+                <div class="sources-links">Sources: <a href="https://store.steampowered.com/app/252950/Rocket_League/" target="_blank" class="link-source" title="https://store.steampowered.com/app/252950/Rocket_League/">[1]</a> <a href="https://en.wikipedia.org/wiki/Rocket_League" target="_blank" class="link-source" title="https://en.wikipedia.org/wiki/Rocket_League">[2]</a></div>
+              </td>
+            </tr>
+            <tr class="game-row" data-id="valorant" data-title="valorant" data-publisher="riot games" data-status="not_supported" data-anticheat="kernel" data-policy="block_kernel_anticheat">
+              <td class="col-game">
+                <div class="game-title">Valorant</div>
+                <div class="game-publisher">Riot Games &bull; <span class="text-muted">Standalone</span></div>
+              </td>
+              <td class="col-status">
+                <span class="status-badge badge-blocked">Not Supported</span>
+              </td>
+              <td class="col-anticheat">
+                <span class="ac-badge badge-ac-kernel">Riot Vanguard</span>
+                <div class="ac-type">kernel_ring0 &bull; Online Only</div>
+              </td>
+              <td class="col-policy">
+                <span class="policy-badge badge-policy-blocked">Sentinel Blocked</span>
+              </td>
+              <td class="col-runtime">
+                <code>d3dmetal_user_provided</code>
+              </td>
+              <td class="col-notice">
+                <p class="policy-notice-text">Valorant requires the kernel-level anti-cheat Riot Vanguard (vgk.sys), TPM 2.0, Secure Boot, and physical x86 Windows. It cannot run in Wine or virtual machines. MacOSGaming strictly blocks launching this game locally. Please use a physical Windows PC.</p>
+                <div class="sources-links">Sources: <a href="https://en.wikipedia.org/wiki/Valorant" target="_blank" class="link-source" title="https://en.wikipedia.org/wiki/Valorant">[1]</a> <a href="https://developer.apple.com/documentation/apple-silicon/about-the-rosetta-translation-environment" target="_blank" class="link-source" title="https://developer.apple.com/documentation/apple-silicon/about-the-rosetta-translation-environment">[2]</a></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="no-results" id="no-results">
+          No games match your search or filter criteria.
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>
+        MacOSGaming is open-source software released under the <a href="https://github.com/NicolasBecasAzagra/MacOSGaming/blob/main/LICENSE" target="_blank">MIT License</a>.
+      </p>
+      <p style="margin-top: 8px;">
+        Have test results for a game? <a href="https://github.com/NicolasBecasAzagra/MacOSGaming/issues/new?template=game_report.yml" target="_blank">Submit a Community Game Report</a>.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Interactive Filtering Script -->
+  <script>
+    (function() {
+      const searchInput = document.getElementById('search-input');
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const anticheatSelect = document.getElementById('anticheat-select');
+      const rows = document.querySelectorAll('#matrix-tbody tr');
+      const noResults = document.getElementById('no-results');
+
+      let activeStatus = 'all';
+      let activeAntiCheat = 'all';
+      let searchQuery = '';
+
+      function applyFilters() {
+        let visibleCount = 0;
+        rows.forEach(row => {
+          const title = row.getAttribute('data-title') || '';
+          const publisher = row.getAttribute('data-publisher') || '';
+          const id = row.getAttribute('data-id') || '';
+          const status = row.getAttribute('data-status') || '';
+          const anticheat = row.getAttribute('data-anticheat') || '';
+
+          const matchesSearch = !searchQuery || 
+            title.includes(searchQuery) || 
+            publisher.includes(searchQuery) || 
+            id.includes(searchQuery);
+
+          const matchesStatus = activeStatus === 'all' || status === activeStatus;
+          const matchesAntiCheat = activeAntiCheat === 'all' || anticheat === activeAntiCheat;
+
+          if (matchesSearch && matchesStatus && matchesAntiCheat) {
+            row.style.display = '';
+            visibleCount++;
+          } else {
+            row.style.display = 'none';
+          }
+        });
+
+        noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+      }
+
+      searchInput.addEventListener('input', e => {
+        searchQuery = e.target.value.toLowerCase().trim();
+        applyFilters();
+      });
+
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          activeStatus = btn.getAttribute('data-filter');
+          applyFilters();
+        });
+      });
+
+      anticheatSelect.addEventListener('change', e => {
+        activeAntiCheat = e.target.value;
+        applyFilters();
+      });
+    })();
+  </script>
+</body>
+</html>

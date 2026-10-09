@@ -36,11 +36,11 @@ public final class LibraryViewModel {
     public var selectedFilter: CompatibilityFilter = .all
 
     public enum CompatibilityFilter: String, CaseIterable, Identifiable {
-        case all = "Todos"
-        case native = "Nativos"
-        case compatible = "Compatibles"
-        case offlineOnly = "Solo Offline"
-        case blocked = "Bloqueados"
+        case all = "All"
+        case native = "Native"
+        case compatible = "Compatible"
+        case offlineOnly = "Offline Only"
+        case blocked = "Blocked"
 
         public var id: String { rawValue }
     }

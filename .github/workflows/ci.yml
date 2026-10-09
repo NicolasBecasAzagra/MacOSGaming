@@ -169,5 +169,29 @@ jobs:
           test -x "$BIN_DIR/MacOSGamingApp"
           echo "MacOSGamingApp binary successfully verified at $BIN_DIR/MacOSGamingApp."
 
+  validate-compatibility-matrix:
+    name: Validate Compatibility Matrix & Generator
+    runs-on: macos-14
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
 
+      - name: Select Xcode Version
+        run: |
+          if [ -d "/Applications/Xcode_16.1.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
+          elif [ -d "/Applications/Xcode_16.0.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+          elif [ -d "/Applications/Xcode_16.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
+          fi
+          xcode-select -p
 
+      - name: Verify Compatibility Matrix Freshness
+        run: |
+          chmod +x scripts/generate_compatibility_page.py
+          python3 scripts/generate_compatibility_page.py --check
+
+      - name: Run Compatibility Matrix Generator Unit Tests
+        run: |
+          swift test --filter CompatibilityMatrixGeneratorTests -v

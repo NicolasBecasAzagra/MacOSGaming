@@ -14,35 +14,35 @@ public struct DiagnosticsView: View {
                 // Header
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Diagnósticos e Inspector del Sistema")
+                        Text("System Diagnostics & Inspector")
                             .font(.system(size: 24, weight: .bold))
-                        Text("Ejecución de System Doctor y validación de rendimiento para juegos reales")
+                        Text("Run System Doctor inspections and performance validation for real games")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
                     Spacer()
                     Button(action: { viewModel.runDoctor() }) {
-                        Label("Re-ejecutar Doctor", systemImage: "arrow.clockwise")
+                        Label("Re-run Doctor", systemImage: "arrow.clockwise")
                     }
                 }
 
                 // Section 1: System Doctor Report
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("INFORME DEL SYSTEM DOCTOR")
+                    Text("SYSTEM DOCTOR REPORT")
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(.secondary)
 
                     if let report = viewModel.systemReport {
                         VStack(spacing: 10) {
-                            DoctorMetricRow(label: "Chip Apple Silicon", value: report.chipModel, status: .ok)
-                            DoctorMetricRow(label: "Núcleos CPU", value: "\(report.cpuCores) núcleos", status: .ok)
-                            DoctorMetricRow(label: "Memoria Unificada", value: String(format: "%.1f GB", report.unifiedMemoryGB), status: report.unifiedMemoryGB >= 16 ? .ok : .warning)
-                            DoctorMetricRow(label: "Acelerador Gráfico Metal", value: report.gpuName, status: .ok)
-                            DoctorMetricRow(label: "Ray Tracing por Hardware", value: report.supportsHardwareRayTracing ? "Compatible" : "No disponible", status: report.supportsHardwareRayTracing ? .ok : .neutral)
-                            DoctorMetricRow(label: "Versión de macOS", value: "macOS \(report.osMarketingName) \(report.osVersion)", status: report.osMajorVersion >= 14 ? .ok : .warning)
-                            DoctorMetricRow(label: "Traducción Rosetta 2", value: report.isRosettaInstalled ? "Instalado y activo" : "No instalado", status: report.isRosettaInstalled ? .ok : .error)
-                            DoctorMetricRow(label: "Instrucciones AVX2 en Rosetta", value: report.supportsAVX2 ? "Habilitado" : "Incompatible (< macOS 15)", status: report.supportsAVX2 ? .ok : .warning)
-                            DoctorMetricRow(label: "Espacio Libre en Disco", value: String(format: "%.1f GB", report.freeDiskSpaceGB), status: report.freeDiskSpaceGB >= 50 ? .ok : .warning)
+                            DoctorMetricRow(label: "Apple Silicon Chip", value: report.chipModel, status: .ok)
+                            DoctorMetricRow(label: "CPU Cores", value: "\(report.cpuCores) cores", status: .ok)
+                            DoctorMetricRow(label: "Unified Memory", value: String(format: "%.1f GB", report.unifiedMemoryGB), status: report.unifiedMemoryGB >= 16 ? .ok : .warning)
+                            DoctorMetricRow(label: "Metal Graphics Accelerator", value: report.gpuName, status: .ok)
+                            DoctorMetricRow(label: "Hardware Ray Tracing", value: report.supportsHardwareRayTracing ? "Supported" : "Not Available", status: report.supportsHardwareRayTracing ? .ok : .neutral)
+                            DoctorMetricRow(label: "macOS Version", value: "macOS \(report.osMarketingName) \(report.osVersion)", status: report.osMajorVersion >= 14 ? .ok : .warning)
+                            DoctorMetricRow(label: "Rosetta 2 Translation", value: report.isRosettaInstalled ? "Installed & Active" : "Not Installed", status: report.isRosettaInstalled ? .ok : .error)
+                            DoctorMetricRow(label: "Rosetta AVX2 Support", value: report.supportsAVX2 ? "Enabled" : "Incompatible (< macOS 15)", status: report.supportsAVX2 ? .ok : .warning)
+                            DoctorMetricRow(label: "Free Disk Space", value: String(format: "%.1f GB", report.freeDiskSpaceGB), status: report.freeDiskSpaceGB >= 50 ? .ok : .warning)
                             DoctorMetricRow(label: "Gaming Readiness Score", value: "\(report.readinessScore) / 100", status: report.readinessScore >= 60 ? .ok : .warning)
                         }
                         .padding()
@@ -53,14 +53,14 @@ public struct DiagnosticsView: View {
 
                 // Section 2: Real-Game Validation Benchmark Runner
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("VALIDACIÓN Y BENCHMARKING DE JUEGOS REALES")
+                    Text("REAL GAME VALIDATION & BENCHMARKING")
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(.secondary)
 
                     VStack(alignment: .leading, spacing: 14) {
                         HStack(spacing: 16) {
-                            Picker("Juego a Validar:", selection: $viewModel.validationGameId) {
-                                Text("Dota 2 (Nativo Metal)").tag("dota-2")
+                            Picker("Game to Validate:", selection: $viewModel.validationGameId) {
+                                Text("Dota 2 (Native Metal)").tag("dota-2")
                                 Text("Elden Ring (DXMT)").tag("elden-ring")
                                 Text("Grand Theft Auto V").tag("gta-v")
                                 Text("Counter-Strike 2").tag("cs2")
@@ -76,14 +76,14 @@ public struct DiagnosticsView: View {
                                     } else {
                                         Image(systemName: "checkmark.shield.fill")
                                     }
-                                    Text(viewModel.isValidating ? "Validando..." : "Validar (Dry-Run)")
+                                    Text(viewModel.isValidating ? "Validating..." : "Validate (Dry-Run)")
                                 }
                             }
                             .buttonStyle(.borderedProminent)
                             .tint(.blue)
                             .disabled(viewModel.isValidating)
 
-                            Button("Validar Proceso Real") {
+                            Button("Validate Real Process") {
                                 viewModel.runValidation(dryRun: false)
                             }
                             .buttonStyle(.bordered)
@@ -96,7 +96,7 @@ public struct DiagnosticsView: View {
                                 HStack {
                                     Image(systemName: report.wasCleanExit ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                                         .foregroundColor(report.wasCleanExit ? .green : .orange)
-                                    Text("Informe de Validación: \(report.gameName)")
+                                    Text("Validation Report: \(report.gameName)")
                                         .font(.headline)
                                     Spacer()
                                     Text(report.timestampISO8601)
@@ -108,19 +108,19 @@ public struct DiagnosticsView: View {
 
                                 Grid(alignment: .leading, horizontalSpacing: 20, verticalSpacing: 6) {
                                     GridRow {
-                                        Text("Estado de Ejecución:").foregroundColor(.secondary)
-                                        Text(report.wasCleanExit ? "Completado con Éxito" : "Código de Salida: \(report.exitCode)").fontWeight(.semibold)
+                                        Text("Execution Status:").foregroundColor(.secondary)
+                                        Text(report.wasCleanExit ? "Completed Successfully" : "Exit Code: \(report.exitCode)").fontWeight(.semibold)
                                     }
                                     GridRow {
-                                        Text("Tiempo de Arranque:").foregroundColor(.secondary)
+                                        Text("Startup Initialization Time:").foregroundColor(.secondary)
                                         Text(String(format: "%.1f ms", report.startupTimeMs)).fontWeight(.semibold)
                                     }
                                     GridRow {
-                                        Text("Tasa de Cuadros (FPS):").foregroundColor(.secondary)
+                                        Text("Framerate (FPS):").foregroundColor(.secondary)
                                         Text(report.estimatedFPS).fontWeight(.semibold)
                                     }
                                     GridRow {
-                                        Text("Sandbox Prefijo (Sanitizado):").foregroundColor(.secondary)
+                                        Text("Prefix Sandbox (Sanitized):").foregroundColor(.secondary)
                                         Text(report.prefixPathSanitized).font(.caption.monospaced())
                                     }
                                 }
@@ -136,7 +136,7 @@ public struct DiagnosticsView: View {
 
                         TerminalConsoleView(
                             text: viewModel.validationOutput,
-                            placeholder: "Haz clic en 'Validar' para ejecutar la suite de comprobación y ver los logs."
+                            placeholder: "Click 'Validate' to execute the test suite and view streaming logs."
                         )
                     }
                     .padding()

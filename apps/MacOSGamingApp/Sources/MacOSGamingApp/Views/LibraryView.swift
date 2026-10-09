@@ -17,7 +17,7 @@ public struct LibraryView: View {
                 HStack {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.secondary)
-                    TextField("Buscar por título o ID...", text: $viewModel.searchQuery)
+                    TextField("Search by title or ID...", text: $viewModel.searchQuery)
                         .textFieldStyle(.plain)
                 }
                 .padding(8)
@@ -25,7 +25,7 @@ public struct LibraryView: View {
                 .cornerRadius(8)
                 .frame(maxWidth: 320)
 
-                Picker("Filtro", selection: $viewModel.selectedFilter) {
+                Picker("Filter", selection: $viewModel.selectedFilter) {
                     ForEach(LibraryViewModel.CompatibilityFilter.allCases) { filter in
                         Text(filter.rawValue).tag(filter)
                     }
@@ -38,7 +38,7 @@ public struct LibraryView: View {
                 Button(action: { viewModel.loadLibrary() }) {
                     Image(systemName: "arrow.clockwise")
                 }
-                .help("Refrescar biblioteca y escaneo de Steam")
+                .help("Refresh library and Steam scan")
             }
             .padding(16)
             .background(Color(NSColor.windowBackgroundColor).opacity(0.6))
@@ -57,7 +57,7 @@ public struct LibraryView: View {
                             Image(systemName: "tray.fill")
                                 .font(.system(size: 36))
                                 .foregroundColor(.secondary)
-                            Text("No se encontraron juegos que coincidan con el filtro.")
+                            Text("No games found matching the selected filter.")
                                 .foregroundColor(.secondary)
                         }
                         .frame(maxWidth: .infinity)
@@ -108,7 +108,7 @@ private struct GameItemRow: View {
 
             CompatibilityBadge(status: item.compatibilityStatus)
 
-            Button("Abrir en Lanzador") {
+            Button("Open in Launcher") {
                 onSelect(item.profile?.id ?? item.id)
             }
             .buttonStyle(.borderedProminent)
@@ -129,6 +129,6 @@ private struct GameItemRow: View {
         } else if let s = item.steamApp {
             return "Steam App ID: \(s.appId)"
         }
-        return "Juego detectado"
+        return "Detected game"
     }
 }

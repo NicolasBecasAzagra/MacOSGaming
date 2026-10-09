@@ -1,106 +1,109 @@
-# Guía de Contribución / Contributing Guide 🤝
+# Contributing Guidelines 🤝
 
-¡Gracias por tu interés en contribuir a **MacOSGaming**! Este proyecto es de código abierto (licencia MIT) y su objetivo es proporcionar una plataforma legal, transparente y de alto rendimiento para configurar, lanzar y diagnosticar videojuegos en macOS y Apple Silicon.
+Thank you for your interest in contributing to **MacOSGaming**! This project is open source under the [MIT License](LICENSE) and aims to deliver a legal, transparent, and high-performance native platform for configuring, launching, and diagnosing games on Apple Silicon macOS.
 
-Para asegurar un desarrollo riguroso, ético y de calidad enterprise, solicitamos a todos los colaboradores seguir estas pautas.
+To ensure enterprise-grade code quality, security, and ethical standards, all contributors are requested to follow these guidelines.
 
 ---
 
-## 🛠️ 1. Configuración del Entorno de Desarrollo
+## 🛠️ 1. Development Environment Setup
 
-### Prerrequisitos
-- **Hardware:** Mac con Apple Silicon (M1, M2, M3, M4 o variantes Pro/Max/Ultra).
-- **Sistema Operativo:** macOS Sonoma (14.0+) o macOS Sequoia (15.0+ recomendado para soporte AVX2).
-- **Herramientas de Desarrollo:**
-  - Xcode 15.0+ o Xcode 16+ con Command Line Tools instaladas (`xcode-select --install`).
-  - Swift Toolchain 5.10 o Swift 6.0 (`swift --version`).
+### Prerequisites
+- **Hardware:** Mac with Apple Silicon (M1, M2, M3, M4 or Pro/Max/Ultra variants).
+- **Operating System:** macOS Sonoma (14.0+) or macOS Sequoia (15.0+ recommended for AVX2 support).
+- **Development Toolchain:**
+  - Xcode 15.0+ or Xcode 16+ with Command Line Tools (`xcode-select --install`).
+  - Swift Toolchain 5.10 or Swift 6.0 (`swift --version`).
   - Git (`git --version`).
+  - Python 3 (`python3 --version`).
 
-### Clonar y Compilar Localmente
+### Clone & Build Locally
 ```bash
-# Clonar el repositorio
+# Clone the repository
 git clone https://github.com/NicolasBecasAzagra/MacOSGaming.git
 cd MacOSGaming
 
-# Compilar todos los módulos (Core, CLI y App SwiftUI)
+# Build all modules (MacOSGamingCore, CLI macosgaming, and MacOSGamingApp)
 swift build
 
-# Compilar en modo Release optimizado
+# Build optimized production release binaries
 swift build -c release
 ```
 
-### Ejecutar la App y el CLI
+### Run the App and CLI
 ```bash
-# Ejecutar el CLI
+# Run the CLI doctor diagnostics
 swift run macosgaming doctor
 swift run macosgaming --help
 
-# Ejecutar la aplicación nativa SwiftUI
+# Launch the native SwiftUI desktop application
 swift run MacOSGamingApp
 ```
 
 ---
 
-## 🌿 2. Flujo de Trabajo en Git y Ramas
+## 🌿 2. Git Workflow & Branching
 
-1. Crea siempre una nueva rama desde `main`:
+1. Always create a clean feature branch from `main`:
    ```bash
    git checkout main
    git pull origin main
-   git checkout -b <tipo>/<nombre-descriptivo>
+   git checkout -b <type>/<descriptive-name>
    ```
-2. Convención de prefijos para ramas:
-   - `feat/`: Nueva funcionalidad o vista.
-   - `fix/`: Corrección de bugs o regresiones.
-   - `docs/`: Documentación, guías o perfiles.
-   - `test/`: Nuevos tests o mejoras de cobertura.
-   - `ci/`: Cambios en GitHub Actions o scripts de compilación.
+2. Recommended branch prefixes:
+   - `feat/`: New feature, UI view, or engine functionality.
+   - `fix/`: Bug fix or regression repair.
+   - `docs/`: Documentation, guides, or compatibility matrix updates.
+   - `test/`: New test cases or test harness enhancements.
+   - `ci/`: GitHub Actions workflows or build automation scripts.
+   - `chore/`: Maintenance, releases, or configuration changes.
 
 ---
 
-## 📝 3. Convenciones de Commits (Conventional Commits)
+## 📝 3. Commit Message Conventions (Conventional Commits)
 
-Utilizamos el estándar [Conventional Commits v1.0.0](https://www.conventionalcommits.org/):
+We strictly adhere to the [Conventional Commits v1.0.0](https://www.conventionalcommits.org/) specification:
 
 ```
-<tipo>(<ámbito opcional>): <descripción concisa en imperativo>
+<type>(<optional scope>): <concise description in imperative mood>
 
-[cuerpo opcional explicando el porqué del cambio]
+[optional body explaining why the change is necessary]
 
-[pie opcional con issues referenciadas, ej: Closes #12]
+[optional footer with referenced issues, e.g., Closes #12]
 ```
 
-### Tipos admitidos:
-- `feat`: Nueva característica en CLI, Core o App.
-- `fix`: Corrección de un fallo o error.
-- `docs`: Modificaciones únicamente en documentación (`docs/`, `README.md`, etc.).
-- `test`: Adición o refactorización de tests unitarios.
-- `ci`: Modificaciones en flujos de integración continua (`.github/workflows/`).
-- `refactor`: Cambios en el código que no alteran la funcionalidad ni corrigen bugs.
-- `perf`: Mejoras de rendimiento en parsing o detección de hardware.
+### Accepted Types:
+- `feat`: New capability in CLI, Core, or App.
+- `fix`: Bug fix.
+- `docs`: Documentation-only updates (`docs/`, `README.md`, etc.).
+- `test`: Adding or refactoring unit tests.
+- `ci`: Changes to CI/CD workflows (`.github/workflows/`).
+- `refactor`: Code changes that neither fix a bug nor add a feature.
+- `perf`: Performance improvements in parsing or hardware detection.
+- `chore`: Housekeeping, releases, dependency bumps.
 
-*Ejemplo:*
+*Example:*
 ```bash
 git commit -m "feat(sentinel): add detection for ACE kernel anti-cheat"
 ```
 
 ---
 
-## 🎮 4. Cómo Añadir o Actualizar un Perfil de Juego
+## 🎮 4. Adding or Updating Game Profiles
 
-Los perfiles de compatibilidad residen en `data/profiles/<game-id>.json`. Todos los perfiles deben ser válidos según `data/profiles/schema.json`.
+Game compatibility profiles reside in `data/profiles/<game-id>.json`. Every profile must validate against `data/profiles/schema.json`.
 
-### 4.1 Principios Éticos y Legales Obligatorios
-- **Cero elusión de anti-cheat:** Nunca documentes ni implementes métodos para burlar o desactivar anti-cheats multijugador online. Si un juego requiere drivers Ring-0 (ej. Vanguard, BattlEye en servidores oficiales), su política debe ser `"block_kernel_anticheat"`.
-- **Cero piratería:** No enlaces a sitios de descargas no oficiales, cracks o software de distribución ilegal.
-- **Fuentes obligatorias:** Todo perfil debe incluir URLs activas (que devuelvan HTTP 200) de fuentes oficiales, wikis públicas verificadas o desarrolladores.
+### 4.1 Mandatory Ethical & Legal Principles
+- **Zero Anti-Cheat Tampering:** Never implement or document mechanisms to bypass, hook, or tamper with multiplayer anti-cheat software. If a game mandates a Ring-0 kernel driver (e.g., Vanguard, BattlEye kernel), its launch policy must strictly be `"block_kernel_anticheat"`.
+- **Zero Piracy:** Do not link to cracked binaries, illegitimate download sources, or unauthorized digital stores.
+- **Mandatory Sources:** Every profile must include active URLs that return HTTP 200 from official publishers, verified wikis, or reputable databases.
 
-### 4.2 Estructura del Perfil JSON
+### 4.2 JSON Profile Schema Example
 ```json
 {
-  "id": "mi-juego",
-  "name": "Nombre Oficial del Videojuego",
-  "publisher": "Nombre del Distribuidor",
+  "id": "my-game",
+  "name": "Official Game Title",
+  "publisher": "Game Publisher Name",
   "steam_app_id": 123456,
   "compatibility_status": "likely_compatible",
   "confidence_level": "verified",
@@ -112,7 +115,7 @@ Los perfiles de compatibilidad residen en `data/profiles/<game-id>.json`. Todos 
     "offline_mode_allowed": true
   },
   "launch_policy": "allow_offline_only",
-  "policy_notice": "El modo multijugador requiere Windows. El modo historia local se puede ejecutar sin anti-cheat.",
+  "policy_notice": "Multiplayer requires Windows. Offline single-player mode executes without anti-cheat.",
   "recommended_runtime": {
     "graphics_backend": "dxmt",
     "environment_variables": {
@@ -127,50 +130,56 @@ Los perfiles de compatibilidad residen en `data/profiles/<game-id>.json`. Todos 
 }
 ```
 
-### 4.3 Validación Local del Perfil
-Antes de enviar un PR, valida la sintaxis y las URLs:
+### 4.3 Profile Local Validation
+Before submitting a PR, validate syntax, schema, and live URLs:
 ```bash
-# Validar sintaxis JSON
-plutil -lint data/profiles/mi-juego.json
+# Validate JSON syntax
+plutil -lint data/profiles/my-game.json
 
-# Validar que todas las fuentes responden con HTTP 200
+# Regenerate compatibility matrix HTML page
+python3 scripts/generate_compatibility_page.py
+
+# Validate all profile URLs return HTTP 200
 ./scripts/validate_sources.sh
 ```
 
 ---
 
-## 🧪 5. Ejecución de Tests y CI Localmente
+## 🧪 5. Running Tests & Local CI
 
-Antes de abrir un Pull Request, ejecuta la suite completa de tests:
+Run the full automated test suite before opening a Pull Request:
 
 ```bash
-# Limpiar artefactos temporales
+# Clean temporary AppleDouble files if present
 find . -type f -name "._*" -delete
 
-# Ejecutar todos los tests unitarios
+# Run all unit and integration tests
 swift test -v
 
-# Ejecutar tests de la app SwiftUI exclusivamente
+# Run SwiftUI App tests specifically
 swift test --filter MacOSGamingAppTests -v
 
-# Validar compilación del binario en Release
+# Verify production release builds
 swift build --product MacOSGamingApp -c release
 swift build --product macosgaming -c release
 
-# Validar script de fuentes
+# Verify compatibility matrix generator is fresh
+python3 scripts/generate_compatibility_page.py --check
+
+# Verify live profile URLs
 ./scripts/validate_sources.sh
 ```
 
 ---
 
-## 🚀 6. Enviar un Pull Request
+## 🚀 6. Submitting a Pull Request
 
-1. Sube tu rama a tu fork o repositorio:
+1. Push your branch to GitHub:
    ```bash
-   git push origin <tu-rama>
+   git push origin <your-branch>
    ```
-2. Abre un Pull Request describiendo con claridad:
-   - Resumen de los cambios.
-   - Motivación o ticket asociado.
-   - Salida del comando `swift test`.
-3. Todos los checks de CI en GitHub Actions deben estar en verde antes de la revisión final.
+2. Open a Pull Request with a clear description:
+   - Summary of changes and rationale.
+   - Linked GitHub issues or feature requests.
+   - Output from `swift test`.
+3. All GitHub Actions status checks must pass green before merging.
