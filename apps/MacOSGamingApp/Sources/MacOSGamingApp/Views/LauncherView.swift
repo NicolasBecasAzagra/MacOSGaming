@@ -207,5 +207,158 @@ public struct LauncherView: View {
             }
             .padding(20)
         }
+        .sheet(isPresented: $viewModel.showDependencySheet) {
+            DependencyResolutionSheet(viewModel: viewModel)
+        }
+    }
+}
+
+public struct DependencyResolutionSheet: View {
+    @Bindable var viewModel: LaunchViewModel
+
+    public var body: some View {
+        VStack(spacing: 0) {
+            // Sheet Header
+            HStack(spacing: 12) {
+                Image(systemName: "shippingbox.fill")
+                    .font(.title2)
+                    .foregroundColor(.blue)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Required Runtimes & Dependencies")
+                        .font(.headline)
+                    Text("The following components are required to run \(viewModel.selectedProfile?.name ?? viewModel.selectedGameId). Explicit user confirmation is required prior to downloading.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+            }
+            .padding(16)
+            .background(Color(NSColor.windowBackgroundColor).opacity(0.8))
+
+            Divider()
+
+            // List of missing dependencies
+            ScrollView {
+                VStack(spacing: 10) {
+                    ForEach(viewModel.missingDependencies) { dep in
+                        HStack(spacing: 12) {
+                            Toggle("", isOn: Binding(
+                                get: { viewModel.selectedDependencyIds.contains(dep.dependencyId) },
+                                set: { _ in viewModel.toggleDependencySelection(dep.dependencyId) }
+                            ))
+                            .labelsHidden()
+                            .disabled(viewModel.isDownloadingDependencies)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack(spacing: 8) {
+                                    Text(dep.name)
+                                        .font(.system(size: 13, weight: .semibold))
+                                    Text(dep.category.rawValue)
+                                        .font(.system(size: 9, weight: .bold))
+                                        .padding(.horizontal, 5)
+                                        .padding(.vertical, 1)
+                                        .background(Color.blue.opacity(0.15))
+                                        .foregroundColor(.blue)
+                                        .cornerRadius(4)
+                                }
+
+                                HStack(spacing: 12) {
+                                    Text("Size: \(dep.formattedSize)")
+                                        .font(.system(size: 11, weight: .medium))
+                                        .foregroundColor(.primary)
+
+                                    Text("•")
+                                        .foregroundColor(.secondary)
+
+                                    Link("Official Source: \(dep.officialSourceURL.host ?? "Website")", destination: dep.officialSourceURL)
+                                        .font(.system(size: 11))
+
+                                    Text("•")
+                                        .foregroundColor(.secondary)
+
+                                    Text(dep.licenseType)
+                                        .font(.system(size: 10))
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+
+                            Spacer()
+                        }
+                        .padding(12)
+                        .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
+                        .cornerRadius(8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.secondary.opacity(0.15), lineWidth: 1)
+                        )
+                    }
+                }
+                .padding(16)
+            }
+
+            Divider()
+
+            // Download Progress Bar & Status
+            if viewModel.isDownloadingDependencies {
+                VStack(spacing: 6) {
+                    ProgressView(value: viewModel.downloadProgress, total: 1.0)
+                        .progressViewStyle(.linear)
+                    Text(viewModel.downloadStatusText)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .background(Color(NSColor.controlBackgroundColor).opacity(0.3))
+
+                Divider()
+            }
+
+            if let errorMsg = viewModel.downloadErrorMessage {
+                HStack {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(.red)
+                    Text(errorMsg)
+                        .font(.caption)
+                        .foregroundColor(.red)
+                }
+                .padding(8)
+            }
+
+            // Footer with Explicit Confirmation Action
+            HStack {
+                Text("Total to download: \(viewModel.formattedTotalSelectedSize)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+
+                Spacer()
+
+                Button("Cancel") {
+                    viewModel.cancelDependencyResolution()
+                }
+                .disabled(viewModel.isDownloadingDependencies)
+
+                Button(action: {
+                    viewModel.installSelectedDependencies()
+                }) {
+                    HStack(spacing: 6) {
+                        if viewModel.isDownloadingDependencies {
+                            ProgressView()
+                                .controlSize(.small)
+                            Text("Downloading...")
+                        } else {
+                            Image(systemName: "arrow.down.circle.fill")
+                            Text("Install Selected")
+                        }
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(viewModel.selectedDependencyIds.isEmpty || viewModel.isDownloadingDependencies)
+            }
+            .padding(16)
+            .background(Color(NSColor.windowBackgroundColor).opacity(0.8))
+        }
+        .frame(width: 580, height: 420)
     }
 }
