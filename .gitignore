@@ -27,5 +27,6 @@ yarn-error.log*
 
 # Logs & Temporary files
 *.log
+dist/
 scratch/
 tmp/
