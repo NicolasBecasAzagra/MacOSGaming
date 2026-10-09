@@ -26,6 +26,9 @@
     "publisher": {
       "type": "string"
     },
+    "steam_app_id": {
+      "type": "integer"
+    },
     "compatibility_status": {
       "type": "string",
       "enum": [

@@ -56,6 +56,12 @@ public final class GameProfileRepository: @unchecked Sendable {
         return profiles[id.lowercased()]
     }
 
+    public func profile(forSteamAppId appId: Int) -> GameProfile? {
+        lock.lock()
+        defer { lock.unlock() }
+        return profiles.values.first { $0.steamAppId == appId }
+    }
+
     public func allProfiles() -> [GameProfile] {
         lock.lock()
         defer { lock.unlock() }
@@ -67,6 +73,7 @@ public final class GameProfileRepository: @unchecked Sendable {
             id: "valorant",
             name: "Valorant",
             publisher: "Riot Games",
+            steamAppId: nil,
             compatibilityStatus: .notSupported,
             confidenceLevel: .verified,
             lastVerified: "2026-10-09",
@@ -88,6 +95,7 @@ public final class GameProfileRepository: @unchecked Sendable {
             id: "league-of-legends",
             name: "League of Legends",
             publisher: "Riot Games",
+            steamAppId: nil,
             compatibilityStatus: .nativeMacOS,
             confidenceLevel: .verified,
             lastVerified: "2026-10-09",
@@ -109,6 +117,7 @@ public final class GameProfileRepository: @unchecked Sendable {
             id: "cs2",
             name: "Counter-Strike 2",
             publisher: "Valve Corporation",
+            steamAppId: 730,
             compatibilityStatus: .likelyCompatible,
             confidenceLevel: .verified,
             lastVerified: "2026-10-09",
@@ -136,6 +145,7 @@ public final class GameProfileRepository: @unchecked Sendable {
             id: "dota-2",
             name: "Dota 2",
             publisher: "Valve Corporation",
+            steamAppId: 570,
             compatibilityStatus: .nativeMacOS,
             confidenceLevel: .verified,
             lastVerified: "2026-10-09",
@@ -157,6 +167,7 @@ public final class GameProfileRepository: @unchecked Sendable {
             id: "elden-ring",
             name: "Elden Ring",
             publisher: "FromSoftware / Bandai Namco",
+            steamAppId: 1245620,
             compatibilityStatus: .likelyCompatible,
             confidenceLevel: .verified,
             lastVerified: "2026-10-09",
@@ -181,6 +192,7 @@ public final class GameProfileRepository: @unchecked Sendable {
             id: "gta-v",
             name: "Grand Theft Auto V",
             publisher: "Rockstar Games",
+            steamAppId: 271590,
             compatibilityStatus: .likelyCompatible,
             confidenceLevel: .verified,
             lastVerified: "2026-10-09",
@@ -205,6 +217,7 @@ public final class GameProfileRepository: @unchecked Sendable {
             id: "rocket-league",
             name: "Rocket League",
             publisher: "Psyonix / Epic Games",
+            steamAppId: 252950,
             compatibilityStatus: .requiresWindows,
             confidenceLevel: .verified,
             lastVerified: "2026-10-09",
@@ -229,6 +242,7 @@ public final class GameProfileRepository: @unchecked Sendable {
             id: "fortnite",
             name: "Fortnite",
             publisher: "Epic Games",
+            steamAppId: nil,
             compatibilityStatus: .notSupported,
             confidenceLevel: .verified,
             lastVerified: "2026-10-09",

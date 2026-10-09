@@ -81,6 +81,7 @@ public struct GameProfile: Codable, Sendable, Equatable, Identifiable {
     public let id: String
     public let name: String
     public let publisher: String
+    public let steamAppId: Int?
     public let compatibilityStatus: CompatibilityStatus
     public let confidenceLevel: ConfidenceLevel
     public let lastVerified: String
@@ -94,6 +95,7 @@ public struct GameProfile: Codable, Sendable, Equatable, Identifiable {
         case id
         case name
         case publisher
+        case steamAppId = "steam_app_id"
         case compatibilityStatus = "compatibility_status"
         case confidenceLevel = "confidence_level"
         case lastVerified = "last_verified"
@@ -108,6 +110,7 @@ public struct GameProfile: Codable, Sendable, Equatable, Identifiable {
         id: String,
         name: String,
         publisher: String,
+        steamAppId: Int? = nil,
         compatibilityStatus: CompatibilityStatus,
         confidenceLevel: ConfidenceLevel,
         lastVerified: String,
@@ -120,6 +123,7 @@ public struct GameProfile: Codable, Sendable, Equatable, Identifiable {
         self.id = id
         self.name = name
         self.publisher = publisher
+        self.steamAppId = steamAppId
         self.compatibilityStatus = compatibilityStatus
         self.confidenceLevel = confidenceLevel
         self.lastVerified = lastVerified

@@ -2,6 +2,7 @@
   "id": "rocket-league",
   "name": "Rocket League",
   "publisher": "Psyonix / Epic Games",
+  "steam_app_id": 252950,
   "compatibility_status": "requires_windows",
   "confidence_level": "verified",
   "last_verified": "2026-10-09",

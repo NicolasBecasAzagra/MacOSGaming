@@ -53,9 +53,43 @@ jobs:
       - name: Run Smoke Test on CLI
         run: |
           .build/debug/macosgaming doctor
+          .build/debug/macosgaming setup
+          .build/debug/macosgaming steam
           .build/debug/macosgaming list
           .build/debug/macosgaming info valorant
           .build/debug/macosgaming test-run elden-ring --offline
+          .build/debug/macosgaming launch elden-ring --offline --dry-run
+
+  phase-2-tests:
+    name: Phase 2 Steam & Launch Flow Tests
+    runs-on: macos-14
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode Version
+        run: |
+          if [ -d "/Applications/Xcode_16.1.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
+          elif [ -d "/Applications/Xcode_16.0.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+          elif [ -d "/Applications/Xcode_16.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
+          fi
+          xcode-select -p
+
+      - name: Run Phase 2 Unit Tests
+        run: |
+          swift test --filter SteamLibraryDetectorTests -v
+          swift test --filter GameLauncherTests -v
+          swift test --filter DependencyManagerTests -v
+
+      - name: Verify CLI Launch and Setup Commands
+        run: |
+          swift build -c release
+          .build/release/macosgaming setup
+          .build/release/macosgaming steam
+          .build/release/macosgaming launch elden-ring --offline --dry-run
 
   validate-sources:
     name: Validate Profile Source URLs (HTTP 200)
@@ -68,4 +102,5 @@ jobs:
         run: |
           chmod +x scripts/validate_sources.sh
           ./scripts/validate_sources.sh
+
 

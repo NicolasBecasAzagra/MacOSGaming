@@ -2,6 +2,7 @@
   "id": "elden-ring",
   "name": "Elden Ring",
   "publisher": "FromSoftware / Bandai Namco",
+  "steam_app_id": 1245620,
   "compatibility_status": "likely_compatible",
   "confidence_level": "verified",
   "last_verified": "2026-10-09",
