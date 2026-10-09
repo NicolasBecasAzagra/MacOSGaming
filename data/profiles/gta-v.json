@@ -1,0 +1,26 @@
+{
+  "id": "gta-v",
+  "name": "Grand Theft Auto V",
+  "publisher": "Rockstar Games",
+  "compatibility_status": "likely_compatible",
+  "confidence_level": "verified",
+  "last_verified": "2026-10-09",
+  "anti_cheat": {
+    "name": "BattlEye",
+    "type": "kernel_ring0",
+    "supported_on_macos": false,
+    "offline_mode_allowed": true
+  },
+  "launch_policy": "allow_offline_only",
+  "policy_notice": "Rockstar integrated BattlEye into GTA V in September 2024. Story Mode is 100% playable by passing '-nobattleye'. Official GTA Online multiplayer servers require the BattlEye kernel driver and are blocked under Wine.",
+  "recommended_runtime": {
+    "graphics_backend": "dxmt",
+    "environment_variables": {
+      "WINEMSYNC": "1"
+    }
+  },
+  "sources": [
+    "Rockstar Support Bulletin: BattlEye Integration in Grand Theft Auto V (September 2024)",
+    "DXMT Project: Direct3D 11 compatibility notes with RAGE engine"
+  ]
+}

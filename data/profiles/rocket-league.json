@@ -1,0 +1,26 @@
+{
+  "id": "rocket-league",
+  "name": "Rocket League",
+  "publisher": "Psyonix / Epic Games",
+  "compatibility_status": "requires_windows",
+  "confidence_level": "verified",
+  "last_verified": "2026-10-09",
+  "anti_cheat": {
+    "name": "Easy Anti-Cheat (EAC)",
+    "type": "kernel_ring0",
+    "supported_on_macos": false,
+    "offline_mode_allowed": true
+  },
+  "launch_policy": "allow_offline_only",
+  "policy_notice": "Psyonix dropped native macOS support in 2020 and added Easy Anti-Cheat (EAC) in April 2024. While local matches and offline training function under Wine/DXMT, online multiplayer queues reject Wine clients. Full online play requires Windows or cloud gaming.",
+  "recommended_runtime": {
+    "graphics_backend": "dxmt",
+    "environment_variables": {
+      "WINEMSYNC": "1"
+    }
+  },
+  "sources": [
+    "Psyonix Support: Rocket League Easy Anti-Cheat Integration (April 2024)",
+    "Psyonix: macOS and Linux Support Deprecation Bulletin (March 2020)"
+  ]
+}

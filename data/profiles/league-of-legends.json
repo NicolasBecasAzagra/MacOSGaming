@@ -1,0 +1,24 @@
+{
+  "id": "league-of-legends",
+  "name": "League of Legends",
+  "publisher": "Riot Games",
+  "compatibility_status": "native_macos",
+  "confidence_level": "verified",
+  "last_verified": "2026-10-09",
+  "anti_cheat": {
+    "name": "Riot Vanguard (Windows Only)",
+    "type": "none",
+    "supported_on_macos": true,
+    "offline_mode_allowed": true
+  },
+  "launch_policy": "allow_direct",
+  "policy_notice": "League of Legends provides an official native macOS client maintained by Riot Games. While Windows requires Vanguard (since Patch 14.9), the macOS client is officially exempt and runs directly via Metal.",
+  "recommended_runtime": {
+    "graphics_backend": "metal_native",
+    "environment_variables": {}
+  },
+  "sources": [
+    "Riot Games Support Bulletin: Patch 14.9 Release Notes & macOS Vanguard Exemption Policy (May 2024)",
+    "Riot Games: Official League of Legends macOS Installer"
+  ]
+}

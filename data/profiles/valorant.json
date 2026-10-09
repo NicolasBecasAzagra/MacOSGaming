@@ -1,0 +1,24 @@
+{
+  "id": "valorant",
+  "name": "Valorant",
+  "publisher": "Riot Games",
+  "compatibility_status": "not_supported",
+  "confidence_level": "verified",
+  "last_verified": "2026-10-09",
+  "anti_cheat": {
+    "name": "Riot Vanguard",
+    "type": "kernel_ring0",
+    "supported_on_macos": false,
+    "offline_mode_allowed": false
+  },
+  "launch_policy": "block_kernel_anticheat",
+  "policy_notice": "Valorant requires the kernel-level anti-cheat Riot Vanguard (vgk.sys), TPM 2.0, Secure Boot, and physical x86 Windows. It cannot run in Wine or virtual machines. MacOSGaming strictly blocks launching this game locally. Please use a physical Windows PC.",
+  "recommended_runtime": {
+    "graphics_backend": "d3dmetal_user_provided",
+    "environment_variables": {}
+  },
+  "sources": [
+    "Riot Games Support: Vanguard Architecture and System Requirements (2024-2026)",
+    "Apple Developer: Rosetta 2 and Darwin Kernel Architecture (User Mode vs Ring 0)"
+  ]
+}
