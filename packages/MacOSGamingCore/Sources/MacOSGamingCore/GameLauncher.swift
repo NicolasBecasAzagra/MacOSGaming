@@ -6,19 +6,28 @@ public struct LaunchConfiguration: Sendable {
     public let additionalArguments: [String]
     public let offlineConsent: Bool
     public let isDryRun: Bool
+    public let timeoutSeconds: Double?
+    public let enableSignalHandling: Bool
+    public let autoRetryWithAlternativeConfig: Bool
 
     public init(
         gameId: String,
         customExecutablePath: URL? = nil,
         additionalArguments: [String] = [],
         offlineConsent: Bool = false,
-        isDryRun: Bool = false
+        isDryRun: Bool = false,
+        timeoutSeconds: Double? = nil,
+        enableSignalHandling: Bool = false,
+        autoRetryWithAlternativeConfig: Bool = false
     ) {
         self.gameId = gameId
         self.customExecutablePath = customExecutablePath
         self.additionalArguments = additionalArguments
         self.offlineConsent = offlineConsent
         self.isDryRun = isDryRun
+        self.timeoutSeconds = timeoutSeconds
+        self.enableSignalHandling = enableSignalHandling
+        self.autoRetryWithAlternativeConfig = autoRetryWithAlternativeConfig
     }
 }
 
@@ -27,7 +36,13 @@ public enum LaunchResult: Sendable {
     case profileNotFound(gameId: String)
     case executableNotFound(gameId: String, searchedPaths: [String], suggestion: String)
     case runtimeMissing(dependencyName: String, instructions: String)
-    case launched(profile: GameProfile, executionResult: ExecutionResult, prefixPath: URL)
+    case launched(
+        profile: GameProfile,
+        executionResult: ExecutionResult,
+        prefixPath: URL,
+        retryAttempted: Bool,
+        alternativeConfigApplied: String?
+    )
 }
 
 public struct GameLauncher: Sendable {
@@ -155,7 +170,9 @@ public struct GameLauncher: Sendable {
                     stderrOutput: "",
                     diagnosticMatches: []
                 ),
-                prefixPath: prefixInfo.prefixDirectory
+                prefixPath: prefixInfo.prefixDirectory,
+                retryAttempted: false,
+                alternativeConfigApplied: nil
             )
         }
 
@@ -180,26 +197,110 @@ public struct GameLauncher: Sendable {
         }
 
         // 8. Execute via ProcessRunner
+        let firstResult: ExecutionResult
         do {
-            let executionResult = try processRunner.run(
+            firstResult = try processRunner.run(
                 executable: executableToRun,
                 arguments: argumentsToRun,
                 environment: finalEnv,
                 workingDirectory: targetExecutable.deletingLastPathComponent(),
+                timeoutSeconds: config.timeoutSeconds,
+                enableSignalHandling: config.enableSignalHandling,
                 onOutput: onOutput
             )
-            return .launched(profile: profile, executionResult: executionResult, prefixPath: prefixInfo.prefixDirectory)
         } catch {
-            return .launched(
+            firstResult = ExecutionResult(
+                exitCode: 1,
+                stdoutOutput: "",
+                stderrOutput: error.localizedDescription,
+                diagnosticMatches: []
+            )
+        }
+
+        // 9. Check if automatic retry with alternative configuration is requested and needed
+        if config.autoRetryWithAlternativeConfig && !firstResult.isSuccess {
+            let (retryEnv, retryArgs, alternativeSummary) = determineAlternativeConfig(
                 profile: profile,
-                executionResult: ExecutionResult(
+                currentEnv: finalEnv,
+                currentArgs: argumentsToRun
+            )
+
+            onOutput?("\n[GameLauncher] Primary launch attempt failed (exit code \(firstResult.exitCode)).\n")
+            onOutput?("[GameLauncher] Triggering automated retry with alternative configuration:\n")
+            onOutput?("  -> \(alternativeSummary)\n\n")
+
+            let retryResult: ExecutionResult
+            do {
+                retryResult = try processRunner.run(
+                    executable: executableToRun,
+                    arguments: retryArgs,
+                    environment: retryEnv,
+                    workingDirectory: targetExecutable.deletingLastPathComponent(),
+                    timeoutSeconds: config.timeoutSeconds,
+                    enableSignalHandling: config.enableSignalHandling,
+                    onOutput: onOutput
+                )
+            } catch {
+                retryResult = ExecutionResult(
                     exitCode: 1,
                     stdoutOutput: "",
                     stderrOutput: error.localizedDescription,
                     diagnosticMatches: []
-                ),
-                prefixPath: prefixInfo.prefixDirectory
+                )
+            }
+
+            return .launched(
+                profile: profile,
+                executionResult: retryResult,
+                prefixPath: prefixInfo.prefixDirectory,
+                retryAttempted: true,
+                alternativeConfigApplied: alternativeSummary
             )
         }
+
+        return .launched(
+            profile: profile,
+            executionResult: firstResult,
+            prefixPath: prefixInfo.prefixDirectory,
+            retryAttempted: false,
+            alternativeConfigApplied: nil
+        )
+    }
+
+    private func determineAlternativeConfig(
+        profile: GameProfile,
+        currentEnv: [String: String],
+        currentArgs: [String]
+    ) -> (env: [String: String], args: [String], summary: String) {
+        var newEnv = currentEnv
+        var newArgs = currentArgs
+        var changes: [String] = []
+
+        // If DXMT was used, fallback to standard Wine DXVK / built-in DLLs
+        if profile.recommendedRuntime.graphicsBackend == .dxmt {
+            newEnv["WINEDLLOVERRIDES"] = "d3d11=b;dxgi=b"
+            changes.append("Fallback Direct3D 11 translation from DXMT to Wine/DXVK")
+        }
+
+        // If WINEMSYNC was enabled, fallback to standard synchronization
+        if currentEnv["WINEMSYNC"] == "1" {
+            newEnv["WINEMSYNC"] = "0"
+            changes.append("Disabled WINEMSYNC=1 (fallback to server synchronization)")
+        }
+
+        // Ensure AVX advertisement is set if running on macOS 15+
+        if newEnv["ROSETTA_ADVERTISE_AVX"] != "1" {
+            newEnv["ROSETTA_ADVERTISE_AVX"] = "1"
+            changes.append("Enabled ROSETTA_ADVERTISE_AVX=1")
+        }
+
+        // Add standard compatibility rendering arguments
+        if !newArgs.contains("-dx11") {
+            newArgs.append("-dx11")
+            changes.append("Injected fallback launch flag -dx11")
+        }
+
+        let summary = changes.isEmpty ? "Applied safe fallback environment" : changes.joined(separator: ", ")
+        return (newEnv, newArgs, summary)
     }
 }

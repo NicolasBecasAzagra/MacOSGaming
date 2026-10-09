@@ -30,7 +30,7 @@ struct MacOSGamingCLI {
 
         case "launch":
             guard args.count > 2 else {
-                print("Error: Missing game ID. Usage: macosgaming launch <game-id> [--path <path>] [--offline] [--dry-run]")
+                print("Error: Missing game ID. Usage: macosgaming launch <game-id> [--path <path>] [--offline] [--dry-run] [--timeout <sec>] [--retry]")
                 exit(1)
             }
             let gameId = args[2]
@@ -38,9 +38,36 @@ struct MacOSGamingCLI {
             if let pathIdx = args.firstIndex(of: "--path"), pathIdx + 1 < args.count {
                 customPath = URL(fileURLWithPath: args[pathIdx + 1])
             }
+            var timeout: Double? = nil
+            if let tIdx = args.firstIndex(of: "--timeout"), tIdx + 1 < args.count {
+                timeout = Double(args[tIdx + 1])
+            }
             let offline = args.contains("--offline")
             let dryRun = args.contains("--dry-run")
-            runLaunch(gameId: gameId, customPath: customPath, offline: offline, dryRun: dryRun)
+            let retry = args.contains("--retry")
+            runLaunch(gameId: gameId, customPath: customPath, offline: offline, dryRun: dryRun, timeout: timeout, retry: retry)
+
+        case "validate":
+            guard args.count > 2 else {
+                print("Error: Missing game ID. Usage: macosgaming validate <game-id> [--path <path>] [--timeout <sec>] [--retry] [--dry-run] [--output <path>]")
+                exit(1)
+            }
+            let gameId = args[2]
+            var customPath: URL? = nil
+            if let pathIdx = args.firstIndex(of: "--path"), pathIdx + 1 < args.count {
+                customPath = URL(fileURLWithPath: args[pathIdx + 1])
+            }
+            var timeout: Double? = 15.0
+            if let tIdx = args.firstIndex(of: "--timeout"), tIdx + 1 < args.count {
+                timeout = Double(args[tIdx + 1])
+            }
+            var outputPath: URL? = nil
+            if let outIdx = args.firstIndex(of: "--output"), outIdx + 1 < args.count {
+                outputPath = URL(fileURLWithPath: args[outIdx + 1])
+            }
+            let dryRun = args.contains("--dry-run")
+            let retry = args.contains("--retry")
+            runValidate(gameId: gameId, customPath: customPath, timeout: timeout, retry: retry, dryRun: dryRun, outputPath: outputPath)
 
         case "setup":
             runSetup()
@@ -79,7 +106,9 @@ struct MacOSGamingCLI {
           steam                   Scan Steam library and list installed games mapped to profiles
           setup                   Inspect dependency runtimes (Wine-CX, DXMT, DXVK) and guide setup
           launch <game-id>        Full launch pipeline: Steam lookup, Wine prefix, profile & exec
-                                  (Options: '--path <path>', '--offline', '--dry-run')
+                                  (Options: '--path <path>', '--offline', '--dry-run', '--timeout <sec>', '--retry')
+          validate <game-id>      Execute real game validation, benchmark FPS & generate report
+                                  (Options: '--path <path>', '--timeout <sec>', '--retry', '--dry-run', '--output <path>')
           test-run <game-id>      Evaluate sentinel and execute sandboxed legal test harness
                                   (Optional: '--offline' for offline-compatible games)
           help                    Display this help message
@@ -92,6 +121,8 @@ struct MacOSGamingCLI {
           macosgaming info cs2
           macosgaming launch elden-ring --offline
           macosgaming launch gta-v --offline --dry-run
+          macosgaming validate dota-2 --dry-run
+          macosgaming validate elden-ring --offline --dry-run
           macosgaming launch valorant
         ===============================================================
         """)
@@ -291,14 +322,24 @@ struct MacOSGamingCLI {
         print("\n[REMINDER] Only the test harness ran. Actual game compatibility for '\(profile.name)' was NOT evaluated.")
     }
 
-    static func runLaunch(gameId: String, customPath: URL?, offline: Bool, dryRun: Bool) {
+    static func runLaunch(
+        gameId: String,
+        customPath: URL?,
+        offline: Bool,
+        dryRun: Bool,
+        timeout: Double? = nil,
+        retry: Bool = false
+    ) {
         let launcher = GameLauncher()
         let config = LaunchConfiguration(
             gameId: gameId,
             customExecutablePath: customPath,
             additionalArguments: [],
             offlineConsent: offline,
-            isDryRun: dryRun
+            isDryRun: dryRun,
+            timeoutSeconds: timeout,
+            enableSignalHandling: true,
+            autoRetryWithAlternativeConfig: retry
         )
 
         print("""
@@ -309,6 +350,8 @@ struct MacOSGamingCLI {
         Mode:           \(dryRun ? "Dry Run (Simulation)" : "Live Execution")
         Offline Mode:   \(offline ? "Requested (Offline Single-Player)" : "Standard")
         Executable:     \(customPath?.path ?? "Auto-detecting via Steam Library...")
+        Timeout Limit:  \(timeout != nil ? "\(timeout!)s" : "None")
+        Auto-Retry:     \(retry ? "Enabled (Alternative Configuration)" : "Disabled")
         ================================================================================
         """)
 
@@ -353,10 +396,21 @@ struct MacOSGamingCLI {
             """)
             exit(1)
 
-        case .launched(let p, let execResult, let prefix):
+        case .launched(_, let execResult, let prefix, let retryAttempted, let altConfig):
             print("\n================================================================================")
             print("Execution finished with exit code: \(execResult.exitCode)")
             print("Prefix Directory: \(prefix.path)")
+            print("Execution Duration: \(String(format: "%.2f s", execResult.executionDurationSeconds))")
+            if execResult.wasTerminatedByTimeout {
+                print("[!] Process was terminated due to timeout limit.")
+            }
+            if execResult.wasTerminatedBySignal {
+                print("[!] Process was cleanly terminated by interruption signal.")
+            }
+            if retryAttempted, let alt = altConfig {
+                print("[*] Automated Retry Triggered: \(alt)")
+            }
+
             if !execResult.diagnosticMatches.isEmpty {
                 print("\nDiagnostic Classifier Findings:")
                 for m in execResult.diagnosticMatches {
@@ -369,6 +423,107 @@ struct MacOSGamingCLI {
             print("================================================================================")
             if execResult.exitCode != 0 {
                 exit(execResult.exitCode)
+            }
+        }
+    }
+
+    static func runValidate(
+        gameId: String,
+        customPath: URL?,
+        timeout: Double?,
+        retry: Bool,
+        dryRun: Bool,
+        outputPath: URL?
+    ) {
+        print("""
+        ================================================================================
+                           MACOSGAMING REAL-GAME VALIDATION
+        ================================================================================
+        Target Profile: \(gameId)
+        Validation Mode: \(dryRun ? "Dry Run (Simulation)" : "Live Execution & Performance Benchmark")
+        Executable:     \(customPath?.path ?? "Auto-detecting via Steam Library...")
+        Timeout Limit:  \(timeout != nil ? "\(timeout!)s" : "None")
+        Auto-Retry:     \(retry ? "Enabled (Alternative Configuration)" : "Disabled")
+        ================================================================================
+        """)
+
+        let validator = GameValidator()
+        let config = GameValidationConfig(
+            gameId: gameId,
+            customExecutablePath: customPath,
+            additionalArguments: [],
+            timeoutSeconds: timeout,
+            autoRetryWithAlternativeConfig: retry,
+            isDryRun: dryRun,
+            outputPath: outputPath
+        )
+
+        let result = validator.validate(config: config) { text in
+            print(text, terminator: "")
+        }
+
+        switch result {
+        case .blockedBySentinel(let p, let reason, let alternatives):
+            print("""
+            [!] VALIDATION BLOCKED BY ANTI-CHEAT SENTINEL
+            Game: \(p.name)
+            Reason:
+            \(reason)
+
+            Legal & Technical Alternatives:
+            """)
+            for alt in alternatives {
+                print("  -> \(alt)")
+            }
+            exit(2)
+
+        case .profileNotFound(let id):
+            print("Error: Profile '\(id)' not found. Run 'macosgaming list' to view registered profiles.")
+            exit(1)
+
+        case .executableNotFound(let id, let searched, let suggestion):
+            print("""
+            [!] Executable binary not found for game '\(id)'.
+            Searched locations:
+            """)
+            for s in searched {
+                print("  - \(s)")
+            }
+            print("\nSuggestion: \(suggestion)")
+            exit(1)
+
+        case .runtimeMissing(let dep, let instructions):
+            print("""
+            [!] Missing Dependency: \(dep)
+            \(instructions)
+            """)
+            exit(1)
+
+        case .validated(let report):
+            print("\n================================================================================")
+            print("VALIDATION SUMMARY: \(report.gameName) (\(report.gameId))")
+            print("================================================================================")
+            print("  Status:               \(report.wasCleanExit ? "[PASSED] Clean Exit" : (report.wasTerminatedByTimeout ? "[TIMEOUT] Execution Exceeded Limit" : "[FAILED] Exit Code \(report.exitCode)"))")
+            print("  Exit Code:            \(report.exitCode)")
+            print("  Startup Time:         \(String(format: "%.1f ms", report.startupTimeMs))")
+            print("  Execution Duration:   \(String(format: "%.2f s", report.totalExecutionDurationSeconds))")
+            print("  Framerate / Perf:     \(report.estimatedFPS)")
+            print("  Report Output File:   \(report.reportURL.path)")
+            print("  Sanitized Prefix:     \(report.prefixPathSanitized)")
+
+            if !report.diagnosticMatches.isEmpty {
+                print("\n  Diagnostic Findings:")
+                for m in report.diagnosticMatches {
+                    print("    [\(m.severity.rawValue)] \(m.explanation)")
+                    print("      Recommendation: \(m.recommendation)")
+                }
+            } else if report.wasCleanExit {
+                print("  Diagnostics:          Clean run. 0 runtime errors detected.")
+            }
+            print("================================================================================")
+            print("[✓] Report successfully written without personal data or absolute user paths.")
+            if !report.wasCleanExit {
+                exit(report.exitCode != 0 ? report.exitCode : 1)
             }
         }
     }

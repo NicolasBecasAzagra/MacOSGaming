@@ -186,6 +186,21 @@ Enforces legal and architectural separation between host code and third-party ru
 - **Runtime Directory:** Manages user runtimes under `~/Library/Application Support/MacOSGaming/runtimes/` (`wine`, `dxmt`, `dxvk`).
 - **Interactive & Headless Setup:** `macosgaming setup` checks status of Rosetta 2, Wine-CX, DXMT, DXVK-macOS, and local D3DMetal DMG mounts, providing exact official download URLs and installation commands.
 
+### 4.8 Real-Game Validation Engine & Telemetry Sanitization (`GameValidator`)
+Provides automated and reproducible performance benchmarking and stability validation for real games:
+- **Telemetry Gathering:** Automatically captures process startup initialization time (ms), total runtime duration, exit status, and engine framerate metrics (parsed from Metal/DXMT logs or estimated against GPU Metal capabilities).
+- **Zero Data Leakage Policy:** Every validation report generated in `docs/validation/<game-id>-report.md` undergoes strict automated sanitization via `GameValidator.sanitize`:
+  - Normalizes absolute user home directories (`/Users/<username>`) to `~`.
+  - Strips local account usernames and machine identifiers.
+  - Replaces external drive and volume paths (`/Volumes/<volume>`) with abstracted identifiers (`<EXTERNAL_STORAGE>`).
+- **Standardized Reporting:** Outputs structured Markdown documents containing system specifications, configured environment flags, error diagnostics, and tail logs.
+
+### 4.9 Process Lifecycle Hardening (`ProcessRunner` & `GameLauncher`)
+Ensures robust execution and clean recovery when launching complex Windows and native games:
+- **Signal Handling (SIGINT/SIGTERM):** Intercepts termination signals via `DispatchSourceSignal`, propagating graceful shutdown (`SIGTERM`) to child game and Wine processes with a 2-second grace period before escalation to `SIGKILL`. This prevents wine prefix registry corruption.
+- **Configurable Execution Watchdog:** Enforces user-defined timeouts (`timeoutSeconds`) to cleanly abort and classify deadlocks or hung processes.
+- **Automated Fallback Retry:** When enabled (`autoRetryWithAlternativeConfig`), detects primary launch failures and automatically attempts a secondary execution using safe fallback parameters (switching DXMT to Wine/DXVK built-in DirectX translation, disabling `WINEMSYNC`, injecting `ROSETTA_ADVERTISE_AVX=1`, and appending `-dx11` rendering flags).
+
 ---
 
 ## 5. Technology Stack Rationale
