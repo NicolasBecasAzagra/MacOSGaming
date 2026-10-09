@@ -165,6 +165,27 @@ As the game process executes, a streaming pipe monitors `stdout` and `stderr`:
   - `err:module:import_dll Library ... not found` -> Missing Visual C++ Redistributable runtime.
 - **Actionable Advice Engine:** Instead of raw hex error codes, outputs formatted solutions in the UI: *"The game is missing the Microsoft Visual C++ 2015-2022 x64 runtime. Click 'Install Prerequisites' to resolve automatically."*
 
+### 4.5 Steam Library Detection Engine (`SteamLibraryDetector`)
+To automatically bridge installed games without requiring user-side manual file path browsing:
+- **Library Discovery:** Resolves primary Steam installation at `~/Library/Application Support/Steam` and secondary library drives configured in `steamapps/libraryfolders.vdf`.
+- **Manifest Parsing:** Parses `appmanifest_<appid>.acf` key-value pairs (AppID, installation directory, StateFlags).
+- **Executable Locator:** Scans `<library>/steamapps/common/<installdir>` for primary Windows `.exe` binaries or native `.app` bundles, filtering out uninstallation helpers, crash reporters, and redistributable setup utilities.
+- **Profile Association:** Automatically links discovered Steam App IDs (e.g. `730` for CS2, `1245620` for Elden Ring) to `GameProfile` entries.
+
+### 4.6 Full Launch Pipeline (`GameLauncher`)
+The launch coordinator executes the full lifecycle of a Windows or native game under macOS:
+1. **Sentinel Pre-flight Gate:** The `AntiCheatSentinel` evaluates the game profile. If a title mandates kernel-level anti-cheat (e.g., Vanguard in Valorant or BattlEye in Fortnite), execution is strictly rejected before spawning any sub-process.
+2. **Binary Resolution:** Resolves target executable from Steam detection or user-provided `--path`.
+3. **Prefix Sandboxing:** `PrefixManager` provisions or re-uses the game's isolated directory in `~/Library/Application Support/MacOSGaming/prefixes/<game_id>`.
+4. **Environment Assembly:** Injects `WINEPREFIX`, `ROSETTA_ADVERTISE_AVX=1` (macOS 15+), `WINEMSYNC=1`, and DLL overrides (`d3d11=n,b;dxgi=n,b` for DXMT).
+5. **Streaming Subprocess & Diagnostics:** `ProcessRunner` executes the process (or dry-run simulation), streaming stdout/stderr in real-time to the console and piping output to `DiagnosticClassifier` for immediate error pattern detection.
+
+### 4.7 Dependency & Runtime Manager (`DependencyManager`)
+Enforces legal and architectural separation between host code and third-party runtimes:
+- **Zero Vendoring:** No third-party binaries (Wine, DXMT, DXVK, D3DMetal) are tracked in git.
+- **Runtime Directory:** Manages user runtimes under `~/Library/Application Support/MacOSGaming/runtimes/` (`wine`, `dxmt`, `dxvk`).
+- **Interactive & Headless Setup:** `macosgaming setup` checks status of Rosetta 2, Wine-CX, DXMT, DXVK-macOS, and local D3DMetal DMG mounts, providing exact official download URLs and installation commands.
+
 ---
 
 ## 5. Technology Stack Rationale

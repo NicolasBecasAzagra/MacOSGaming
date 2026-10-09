@@ -33,30 +33,39 @@ The engineering roadmap is organized into five structured phases to ensure stabi
 
 ---
 
-## Phase 1: Monorepo Foundation & Core MVP (Current Target)
-- [ ] Initialize monorepo directory layout (`apps/`, `packages/`, `docs/`, `.github/`).
-- [ ] Implement `MacOSGamingCore` Swift Package:
+## Phase 1: Monorepo Foundation & Core MVP (Completed)
+- [x] Initialize monorepo directory layout (`apps/`, `packages/`, `docs/`, `.github/`).
+- [x] Implement `MacOSGamingCore` Swift Package:
   - `SystemDetector`: CPU (M1-M4), RAM, GPU Metal features, OS version, disk space, and Rosetta 2 status.
   - `AntiCheatSentinel`: Hardware/software policy gatekeeper for unsupported anti-cheat games.
   - `GameProfileRepository`: Embedded JSON database with profiles for popular games.
   - `DiagnosticClassifier`: Basic regex and pattern matcher for Wine / runtime errors.
-- [ ] Implement `MacOSGamingCLI` (`macosgaming doctor`, `macosgaming info`, `macosgaming run`).
-- [ ] Create basic GitHub Actions CI pipeline: linting, formatting, automated unit tests.
-- [ ] Write professional `README.md` and `LICENSE` (MIT).
-- [ ] Verify MVP end-to-end: system detection + diagnostic run on local host.
+- [x] Implement `MacOSGamingCLI` (`macosgaming doctor`, `macosgaming info`, `macosgaming test-run`).
+- [x] Create basic GitHub Actions CI pipeline: linting, formatting, automated unit tests, and source URL validation.
+- [x] Write professional `README.md` and `LICENSE` (MIT).
+- [x] Verify MVP end-to-end: system detection + diagnostic run on local host.
 
 ---
 
-## Phase 2: Prefix Engine & Guided Compatibility Runtime
-- [ ] Implement `PrefixManager` for sandbox isolation:
-  - Automated Wine prefix creation with zero manual terminal commands.
-  - `msync` Mach port synchronization flag enforcement.
-  - Configurable `ROSETTA_ADVERTISE_AVX=1` for macOS Sequoia (15.x).
-- [ ] Integration with open-source graphics translators:
-  - DXMT (DirectX 11 to Metal 3) downloader and linker.
-  - Optional D3DMetal adapter (user-guided mounting of local Apple evaluation DMG).
-- [ ] Guided installer for legal, open-source or freely available benchmark/test game (e.g. SuperTuxKart Windows build or free open-source test harness).
-- [ ] Launch runner with streaming `stdout` / `stderr` pipes and live diagnostic parser.
+## Phase 2: Steam Library Integration, Full Launch Pipeline & Dependency Setup (Completed)
+- [x] Implement `SteamLibraryDetector`:
+  - Scans `~/Library/Application Support/Steam` and secondary libraries defined in `libraryfolders.vdf`.
+  - Parses `appmanifest_<appid>.acf` to extract app metadata and installation paths.
+  - Maps Steam App IDs directly to versioned `GameProfile` entries.
+  - CLI command: `macosgaming steam` to discover and list all locally installed Steam games.
+- [x] Implement Full Launch Pipeline (`GameLauncher`):
+  - CLI command: `macosgaming launch <game-id> [--path <path>] [--offline] [--dry-run]`.
+  - Automatic Anti-Cheat Sentinel evaluation (strictly blocks kernel-level anti-cheat before any execution).
+  - Prefix sandboxing via `PrefixManager` in `~/Library/Application Support/MacOSGaming/prefixes/<game-id>`.
+  - Environment variable injection (`ROSETTA_ADVERTISE_AVX=1`, `WINEMSYNC=1`, `WINEDLLOVERRIDES`).
+  - Real-time `stdout`/`stderr` streaming with live `DiagnosticClassifier` crash analysis.
+- [x] Guided Dependency Setup (`DependencyManager`):
+  - CLI command: `macosgaming setup` to inspect status of Rosetta 2, Wine-CX, DXMT, DXVK-macOS, and D3DMetal.
+  - Detailed installation instructions pointing to official upstream sources without in-repo binary vendoring.
+- [x] Automated Tests & CI Integration:
+  - Unit tests with mock filesystem for Steam library detection (`SteamLibraryDetectorTests`).
+  - Unit tests for Sentinel blocking, dry-run simulation, and legal DRM-free binary execution (`GameLauncherTests`).
+  - Dedicated CI job `phase-2-tests` in GitHub Actions.
 
 ---
 

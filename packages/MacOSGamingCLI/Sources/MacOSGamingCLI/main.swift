@@ -28,6 +28,26 @@ struct MacOSGamingCLI {
             }
             runInfo(gameId: args[2])
 
+        case "launch":
+            guard args.count > 2 else {
+                print("Error: Missing game ID. Usage: macosgaming launch <game-id> [--path <path>] [--offline] [--dry-run]")
+                exit(1)
+            }
+            let gameId = args[2]
+            var customPath: URL? = nil
+            if let pathIdx = args.firstIndex(of: "--path"), pathIdx + 1 < args.count {
+                customPath = URL(fileURLWithPath: args[pathIdx + 1])
+            }
+            let offline = args.contains("--offline")
+            let dryRun = args.contains("--dry-run")
+            runLaunch(gameId: gameId, customPath: customPath, offline: offline, dryRun: dryRun)
+
+        case "setup":
+            runSetup()
+
+        case "steam":
+            runSteam()
+
         case "test-run":
             guard args.count > 2 else {
                 print("Error: Missing game ID. Usage: macosgaming test-run <game-id> [--offline]")
@@ -56,16 +76,23 @@ struct MacOSGamingCLI {
           doctor [--json]         Inspect Mac hardware, Metal GPU, and Rosetta 2 readiness
           list                    List all available game profiles and compatibility status
           info <game-id>          Display verified profile details, anti-cheat, and sources
-          test-run <game-id>      Evaluate sentinel and execute sandboxed legal test runner
+          steam                   Scan Steam library and list installed games mapped to profiles
+          setup                   Inspect dependency runtimes (Wine-CX, DXMT, DXVK) and guide setup
+          launch <game-id>        Full launch pipeline: Steam lookup, Wine prefix, profile & exec
+                                  (Options: '--path <path>', '--offline', '--dry-run')
+          test-run <game-id>      Evaluate sentinel and execute sandboxed legal test harness
                                   (Optional: '--offline' for offline-compatible games)
           help                    Display this help message
 
         Examples:
           macosgaming doctor
-          macosgaming info valorant
+          macosgaming setup
+          macosgaming steam
+          macosgaming list
           macosgaming info cs2
-          macosgaming test-run elden-ring --offline
-          macosgaming test-run valorant
+          macosgaming launch elden-ring --offline
+          macosgaming launch gta-v --offline --dry-run
+          macosgaming launch valorant
         ===============================================================
         """)
     }
@@ -262,5 +289,141 @@ struct MacOSGamingCLI {
             print("[✓] Diagnostic scan clean: 0 runtime errors detected in harness execution.")
         }
         print("\n[REMINDER] Only the test harness ran. Actual game compatibility for '\(profile.name)' was NOT evaluated.")
+    }
+
+    static func runLaunch(gameId: String, customPath: URL?, offline: Bool, dryRun: Bool) {
+        let launcher = GameLauncher()
+        let config = LaunchConfiguration(
+            gameId: gameId,
+            customExecutablePath: customPath,
+            additionalArguments: [],
+            offlineConsent: offline,
+            isDryRun: dryRun
+        )
+
+        print("""
+        ================================================================================
+                           MACOSGAMING LAUNCH PIPELINE
+        ================================================================================
+        Target Profile: \(gameId)
+        Mode:           \(dryRun ? "Dry Run (Simulation)" : "Live Execution")
+        Offline Mode:   \(offline ? "Requested (Offline Single-Player)" : "Standard")
+        Executable:     \(customPath?.path ?? "Auto-detecting via Steam Library...")
+        ================================================================================
+        """)
+
+        let result = launcher.launch(configuration: config) { text in
+            print(text, terminator: "")
+        }
+
+        switch result {
+        case .blockedBySentinel(let p, let reason, let alternatives):
+            print("""
+            [!] LAUNCH BLOCKED BY ANTI-CHEAT SENTINEL
+            Game: \(p.name)
+            Reason:
+            \(reason)
+
+            Legal & Technical Alternatives:
+            """)
+            for alt in alternatives {
+                print("  -> \(alt)")
+            }
+            exit(2)
+
+        case .profileNotFound(let id):
+            print("Error: Profile '\(id)' not found. Run 'macosgaming list' to view registered profiles.")
+            exit(1)
+
+        case .executableNotFound(let id, let searched, let suggestion):
+            print("""
+            [!] Executable binary not found for game '\(id)'.
+            Searched locations:
+            """)
+            for s in searched {
+                print("  - \(s)")
+            }
+            print("\nSuggestion: \(suggestion)")
+            exit(1)
+
+        case .runtimeMissing(let dep, let instructions):
+            print("""
+            [!] Missing Dependency: \(dep)
+            \(instructions)
+            """)
+            exit(1)
+
+        case .launched(let p, let execResult, let prefix):
+            print("\n================================================================================")
+            print("Execution finished with exit code: \(execResult.exitCode)")
+            print("Prefix Directory: \(prefix.path)")
+            if !execResult.diagnosticMatches.isEmpty {
+                print("\nDiagnostic Classifier Findings:")
+                for m in execResult.diagnosticMatches {
+                    print("  [\(m.severity.rawValue)] \(m.explanation)")
+                    print("    Recommendation: \(m.recommendation)")
+                }
+            } else if execResult.exitCode == 0 {
+                print("[✓] Process completed successfully.")
+            }
+            print("================================================================================")
+            if execResult.exitCode != 0 {
+                exit(execResult.exitCode)
+            }
+        }
+    }
+
+    static func runSetup() {
+        let depMgr = DependencyManager()
+        do {
+            try depMgr.ensureRuntimeDirectories()
+            print("[✓] Initialized runtime storage at: \(depMgr.runtimesDirectory.path)\n")
+        } catch {
+            print("[!] Warning: Could not create runtimes directory: \(error)\n")
+        }
+
+        let deps = depMgr.checkDependencies()
+
+        print("""
+        +-----------------------------------------------------------------------------+
+        |                  MACOSGAMING DEPENDENCY SETUP & DIAGNOSTIC                  |
+        +-----------------------------------------------------------------------------+
+        """)
+
+        for d in deps {
+            let status = d.isInstalled ? "[INSTALLED]" : "[MISSING]  "
+            print("\(status) \(d.name)")
+            print("   License: \(d.licenseType)")
+            print("   Official Source: \(d.officialSourceURL)")
+            if let path = d.installedPath {
+                print("   Path: \(path)")
+            } else {
+                print("   Action Required to Install:")
+                for line in d.installationInstructions.components(separatedBy: "\n") {
+                    print("     \(line)")
+                }
+            }
+            print("-------------------------------------------------------------------------------")
+        }
+    }
+
+    static func runSteam() {
+        let detector = SteamLibraryDetector()
+        let apps = detector.detectInstalledApps()
+
+        print("+--------------------+--------------------------------+----------------------------+")
+        print("| Steam App ID       | Installed Game Name            | Mapped Profile ID          |")
+        print("+--------------------+--------------------------------+----------------------------+")
+        if apps.isEmpty {
+            print("| No installed Steam games detected in ~/Library/Application Support/Steam           |")
+        } else {
+            for app in apps {
+                let idPad = "\(app.appId)".padding(toLength: 18, withPad: " ", startingAt: 0)
+                let namePad = String(app.name.prefix(30)).padding(toLength: 30, withPad: " ", startingAt: 0)
+                let profilePad = (app.profileId ?? "none (unmapped)").padding(toLength: 26, withPad: " ", startingAt: 0)
+                print("| \(idPad) | \(namePad) | \(profilePad) |")
+            }
+        }
+        print("+--------------------+--------------------------------+----------------------------+")
     }
 }

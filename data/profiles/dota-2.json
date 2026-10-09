@@ -2,6 +2,7 @@
   "id": "dota-2",
   "name": "Dota 2",
   "publisher": "Valve Corporation",
+  "steam_app_id": 570,
   "compatibility_status": "native_macos",
   "confidence_level": "verified",
   "last_verified": "2026-10-09",
