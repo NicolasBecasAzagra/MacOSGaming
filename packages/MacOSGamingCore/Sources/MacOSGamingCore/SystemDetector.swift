@@ -117,8 +117,11 @@ public struct SystemDetector: Sendable {
     public static func detectRayTracingSupport(device: MTLDevice?) -> Bool {
         guard let device = device else { return false }
         if #available(macOS 14.0, *) {
-            // Dedicated hardware ray tracing was introduced in Apple family 9 (M3) and 10 (M4)
-            if device.supportsFamily(.apple9) || device.supportsFamily(.apple10) {
+            // Dedicated hardware ray tracing was introduced in Apple family 9 (M3 generation)
+            if device.supportsFamily(.apple9) {
+                return true
+            }
+            if let apple10 = MTLGPUFamily(rawValue: 1010), device.supportsFamily(apple10) {
                 return true
             }
         }
