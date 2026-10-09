@@ -90,14 +90,23 @@ The engineering roadmap is organized into five structured phases to ensure stabi
 
 ---
 
-## Phase 4: Launcher Scanner & Auto-Import
-- [ ] Auto-detection of local launchers:
-  - macOS Steam and Windows Steam bottle detection.
-  - Epic Games Store manifests scanner (`.item` files).
-  - GOG Galaxy library detection.
-  - Battle.net installation scanner.
-- [ ] One-click library synchronization: imports existing installed games into MacOSGaming library.
-- [ ] Custom game importer: drag-and-drop `.exe` installer with automatic profile matching.
+## Phase 4: Native SwiftUI macOS Application & ViewModel Architecture (Completed)
+- [x] Native SwiftUI Desktop Target (`MacOSGamingApp`):
+  - Created executable application target in `apps/MacOSGamingApp/Sources/MacOSGamingApp/`.
+  - Implemented the 5 primary views adhering to `docs/ui-mockup.md`: `DashboardView`, `LibraryView`, `LauncherView`, `DiagnosticsView`, `SettingsView`.
+- [x] Fully Reactive MVVM Architecture:
+  - Implemented `@Observable` and `@MainActor` ViewModels (`DashboardViewModel`, `LibraryViewModel`, `LaunchViewModel`, `DiagnosticsViewModel`, `SettingsViewModel`).
+  - Zero duplicate logic: 100% bound to `MacOSGamingCore` services (`SystemDetector`, `GameLauncher`, `GameProfileRepository`, `DependencyManager`, `SteamLibraryDetector`, `GameValidator`).
+  - Non-blocking asynchronous threading: process launches and benchmarks run via detached tasks with thread-safe UI log streaming.
+- [x] Core Feature Coverage:
+  - **Dashboard:** Gaming Readiness Score gauge (0–100), hardware telemetry (Apple Silicon chip, unified memory, GPU Metal, ray tracing), and Rosetta 2 / AVX2 status cards.
+  - **Biblioteca:** Steam game scanning mapped to compatibility profiles, compatibility badges, and multi-state filtering (`Todos`, `Nativos`, `Compatibles`, `Solo Offline`, `Bloqueados`).
+  - **Lanzador:** Dynamic profile configuration, live streaming terminal console, cancel button, and immediate Anti-Cheat Sentinel blocking barrier.
+  - **Diagnósticos:** Interactive system health doctor and benchmark validation suite.
+  - **Ajustes:** External runtime and Steam path verification, strict Zero-Leakage opt-in telemetry toggle (OFF by default).
+- [x] Unit Tests & CI Integration:
+  - ViewModel unit test suite (`MacOSGamingAppTests`): verifies Dashboard reflects `SystemReport`, Sentinel blocks kernel anti-cheat games, library filtering, and default privacy settings.
+  - Added dedicated `phase-4-app-tests` job to `.github/workflows/ci.yml`.
 
 ---
 

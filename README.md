@@ -60,6 +60,28 @@ swift build -c release
 
 ---
 
+## 🖥️ Running the Native macOS App (`MacOSGamingApp`)
+
+You can launch the native SwiftUI application directly with Swift Package Manager:
+
+```bash
+# Run the SwiftUI app directly in development mode
+swift run MacOSGamingApp
+
+# Or compile an optimized release binary and run it
+swift build --target MacOSGamingApp -c release
+./.build/release/MacOSGamingApp
+```
+
+### Application Views:
+- 📊 **Dashboard:** Real-time hardware inspection (Apple Silicon chip, cores, unified memory, Metal GPU, Ray Tracing), Rosetta 2 / AVX2 status cards, and the 0–100 Gaming Readiness Score gauge.
+- 📚 **Biblioteca (Library):** Automatic Steam library discovery mapped to verified game compatibility profiles, with instant status filtering (`Todos`, `Nativos`, `Compatibles`, `Solo Offline`, `Bloqueados`).
+- 🚀 **Lanzador (Launcher):** Launch controls with offline mode consent, live terminal streaming logs, execution cancel button, and real-time Anti-Cheat Sentinel enforcement.
+- 🩺 **Diagnósticos (Diagnostics):** Interactive system doctor health checks and real game validation benchmarks with zero data leakage sanitization.
+- ⚙️ **Ajustes (Settings):** External runtimes inspection (Wine-CX, DXMT, DXVK, Apple D3DMetal), Steam root paths, and telemetry toggle (**OFF by default**).
+
+---
+
 ## 💻 CLI Commands (`macosgaming`)
 
 ### 1. Inspect Your System with `macosgaming doctor`

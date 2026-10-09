@@ -43,9 +43,11 @@ final class GameLauncherRetryTests: XCTestCase {
             autoRetryWithAlternativeConfig: true
         )
 
-        var streamedLogs = ""
+        let streamedLogs = ThreadSafeBuffer()
         let result = launcher.launch(configuration: config) { text in
-            streamedLogs += text
+            if let data = text.data(using: .utf8) {
+                streamedLogs.append(data)
+            }
         }
 
         switch result {
@@ -55,8 +57,9 @@ final class GameLauncherRetryTests: XCTestCase {
             XCTAssertNotNil(alternativeConfigApplied, "Alternative config summary should be recorded")
             XCTAssertEqual(execResult.exitCode, 0, "Second attempt with -dx11 fallback should succeed")
             XCTAssertTrue(execResult.stdoutOutput.contains("Fallback DirectX 11 backend succeeded!"))
-            XCTAssertTrue(streamedLogs.contains("Primary launch attempt failed"))
-            XCTAssertTrue(streamedLogs.contains("Triggering automated retry"))
+            let logs = streamedLogs.stringValue()
+            XCTAssertTrue(logs.contains("Primary launch attempt failed"))
+            XCTAssertTrue(logs.contains("Triggering automated retry"))
         default:
             XCTFail("Expected .launched result with retry, got: \(result)")
         }
