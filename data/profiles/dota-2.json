@@ -18,7 +18,7 @@
     "environment_variables": {}
   },
   "sources": [
-    "Valve Steam Store: Dota 2 Mac System Requirements",
-    "MoltenVK Project: Valve Source 2 Engine Integration Notes"
+    "https://store.steampowered.com/app/570/Dota_2/",
+    "https://github.com/KhronosGroup/MoltenVK"
   ]
 }

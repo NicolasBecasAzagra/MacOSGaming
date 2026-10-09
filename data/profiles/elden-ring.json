@@ -20,7 +20,7 @@
     }
   },
   "sources": [
-    "FromSoftware / Bandai Namco: Elden Ring Steam System Requirements",
-    "Apple Developer: Game Porting Toolkit Evaluation Guidelines"
+    "https://store.steampowered.com/app/1245620/ELDEN_RING/",
+    "https://developer.apple.com/games/"
   ]
 }

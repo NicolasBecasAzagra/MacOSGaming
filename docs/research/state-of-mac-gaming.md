@@ -330,16 +330,15 @@ Rosetta 2 translates x86_64 code to ARM64 instructions:
 
 ## 13. Legal, Licensing, and Ethical Boundaries
 
-### 13.1 Apple Game Porting Toolkit License Agreement (Exact Text)
-Apple distributes the Game Porting Toolkit DMG under the **Game Porting Toolkit Evaluation License Agreement**.  
-Section 2 states verbatim:
-> *"Permitted Agreement Uses and Restrictions. (...) Apple grants you a limited, non-exclusive, personal copyright license to install, internally use, and test the Apple Software on Apple-branded computers running macOS solely for the purpose of developing, testing, or evaluating video games for use on Apple-branded products..."*  
-> *"Except as expressly permitted (...) you may not, and you agree not to, or to enable others to, copy (except as expressly permitted by this Agreement), decompile, reverse engineer, disassemble, attempt to derive the source code of, decrypt, modify, create derivative works of, rent, lease, lend, sell, redistribute, or sublicense the Apple Software or any services provided by the Apple Software, or any part thereof..."*
+### 13.1 Apple Game Porting Toolkit License Evaluation
+Apple distributes the Game Porting Toolkit DMG under the [Game Porting Toolkit Evaluation License Agreement](https://developer.apple.com/games/).
 
-**Architectural Enforcement in MacOSGaming:**
-- **Zero Redistribution:** MacOSGaming does **NOT** bundle, host, or download `D3DMetal.framework`, `libd3dshared.dylib`, or any proprietary Apple binaries.
-- **User-Provided Tooling:** If a user chooses to evaluate D3DMetal, they must log in to Apple Developer Downloads, download the official evaluation DMG themselves, and mount it locally. MacOSGaming will only detect an existing local installation path.
-- **Open-Source Default:** The default graphics backend for Direct3D 11 in MacOSGaming is **DXMT** (LGPL/MIT), which is fully open-source and free of proprietary restrictions.
+Under Section 2 of this agreement, Apple grants a limited license *"solely for the purpose of developing, testing, or evaluating video games for use on Apple-branded products"*. The license explicitly restricts redistribution, decompilation, and commercial deployment without Apple's separate authorization.
+
+**Policy & Architectural Enforcement in MacOSGaming:**
+- **No Redistribution or Recommendation for Play:** MacOSGaming does **NOT** bundle, mirror, or recommend `D3DMetal.framework`, `libd3dshared.dylib`, or any proprietary Apple binaries as an end-user gaming runtime.
+- **Open-Source Default:** The default graphics backend for Direct3D 11 in MacOSGaming is **DXMT** (LGPL/MIT) combined with Wine-CX and DXVK-macOS, or alternatively **CodeWeavers CrossOver** under its own commercial license.
+- **Advanced Developer Option:** D3DMetal is recognized strictly as an *"opción avanzada bajo tu propia responsabilidad y licencia"*. If an engineer chooses to evaluate D3DMetal, they must independently access [Apple Developer Downloads](https://developer.apple.com/download/all/) using their standard Apple ID (no paid Developer Program enrollment required per Apple Developer Agreement) and accept Apple's license agreement directly. MacOSGaming merely performs local path detection for pre-existing evaluations.
 
 ### 13.2 Anti-Cheat & Ethical Guardrails
 - **No Bypasses or Cracks:** MacOSGaming strictly prohibits modifying, circumventing, or spoofing anti-cheat systems.

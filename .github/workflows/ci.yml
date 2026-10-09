@@ -56,3 +56,16 @@ jobs:
           .build/debug/macosgaming list
           .build/debug/macosgaming info valorant
           .build/debug/macosgaming test-run elden-ring --offline
+
+  validate-sources:
+    name: Validate Profile Source URLs (HTTP 200)
+    runs-on: macos-14
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run Source Validation Script
+        run: |
+          chmod +x scripts/validate_sources.sh
+          ./scripts/validate_sources.sh
+
