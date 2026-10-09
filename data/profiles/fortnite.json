@@ -1,0 +1,24 @@
+{
+  "id": "fortnite",
+  "name": "Fortnite",
+  "publisher": "Epic Games",
+  "compatibility_status": "not_supported",
+  "confidence_level": "verified",
+  "last_verified": "2026-10-09",
+  "anti_cheat": {
+    "name": "BattlEye / Easy Anti-Cheat",
+    "type": "kernel_ring0",
+    "supported_on_macos": false,
+    "offline_mode_allowed": false
+  },
+  "launch_policy": "block_kernel_anticheat",
+  "policy_notice": "Fortnite employs kernel-level anti-cheat (BattlEye & Easy Anti-Cheat) on Windows. The native Mac version has been frozen at Chapter 2 Season 3 (2020) and cannot connect to current season servers. The Windows version cannot run in Wine or virtual machines. Cloud gaming (GeForce NOW or Xbox Cloud Gaming) is required on Mac.",
+  "recommended_runtime": {
+    "graphics_backend": "dxmt",
+    "environment_variables": {}
+  },
+  "sources": [
+    "Epic Games Support: Fortnite on Mac Status and Cloud Alternatives",
+    "Epic Games: Anti-Cheat System Integration Bulletins"
+  ]
+}

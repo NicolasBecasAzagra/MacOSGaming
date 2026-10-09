@@ -1,0 +1,24 @@
+{
+  "id": "dota-2",
+  "name": "Dota 2",
+  "publisher": "Valve Corporation",
+  "compatibility_status": "native_macos",
+  "confidence_level": "verified",
+  "last_verified": "2026-10-09",
+  "anti_cheat": {
+    "name": "Valve Anti-Cheat (VAC Native)",
+    "type": "none",
+    "supported_on_macos": true,
+    "offline_mode_allowed": true
+  },
+  "launch_policy": "allow_direct",
+  "policy_notice": "Dota 2 is officially supported natively on macOS through Steam, utilizing MoltenVK for Vulkan-to-Metal translation and running seamlessly on Apple Silicon via Rosetta 2.",
+  "recommended_runtime": {
+    "graphics_backend": "metal_native",
+    "environment_variables": {}
+  },
+  "sources": [
+    "Valve Steam Store: Dota 2 Mac System Requirements",
+    "MoltenVK Project: Valve Source 2 Engine Integration Notes"
+  ]
+}

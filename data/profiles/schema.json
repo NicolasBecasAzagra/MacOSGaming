@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MacOSGamingGameProfile",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "publisher",
+    "compatibility_status",
+    "confidence_level",
+    "last_verified",
+    "anti_cheat",
+    "launch_policy",
+    "policy_notice",
+    "recommended_runtime",
+    "sources"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "publisher": {
+      "type": "string"
+    },
+    "compatibility_status": {
+      "type": "string",
+      "enum": [
+        "native_macos",
+        "likely_compatible",
+        "requires_windows",
+        "not_supported"
+      ]
+    },
+    "confidence_level": {
+      "type": "string",
+      "enum": [
+        "verified",
+        "probable",
+        "hypothesis"
+      ]
+    },
+    "last_verified": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "anti_cheat": {
+      "type": "object",
+      "required": ["name", "type", "supported_on_macos", "offline_mode_allowed"],
+      "properties": {
+        "name": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["kernel_ring0", "userspace", "none"]
+        },
+        "supported_on_macos": { "type": "boolean" },
+        "offline_mode_allowed": { "type": "boolean" }
+      }
+    },
+    "launch_policy": {
+      "type": "string",
+      "enum": [
+        "allow_direct",
+        "allow_offline_only",
+        "block_kernel_anticheat"
+      ]
+    },
+    "policy_notice": {
+      "type": "string"
+    },
+    "recommended_runtime": {
+      "type": "object",
+      "required": ["graphics_backend", "environment_variables"],
+      "properties": {
+        "graphics_backend": {
+          "type": "string",
+          "enum": ["dxmt", "d3dmetal_user_provided", "dxvk", "metal_native"]
+        },
+        "environment_variables": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    }
+  }
+}

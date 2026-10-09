@@ -1,0 +1,28 @@
+{
+  "id": "cs2",
+  "name": "Counter-Strike 2",
+  "publisher": "Valve Corporation",
+  "compatibility_status": "likely_compatible",
+  "confidence_level": "verified",
+  "last_verified": "2026-10-09",
+  "anti_cheat": {
+    "name": "Valve Anti-Cheat (VAC)",
+    "type": "userspace",
+    "supported_on_macos": false,
+    "offline_mode_allowed": true
+  },
+  "launch_policy": "allow_direct",
+  "policy_notice": "Valve officially confirmed that Counter-Strike 2 will NOT be released on macOS (FAQ Oct 2023). It executes via compatibility layers (CrossOver/GPTK). Multiplayer matchmaking with VAC experiences frequent session authentication drops ('VAC was unable to verify your game session'); permanent ban risk under Wine remains officially unverified.",
+  "recommended_runtime": {
+    "graphics_backend": "d3dmetal_user_provided",
+    "environment_variables": {
+      "WINEMSYNC": "1",
+      "ROSETTA_ADVERTISE_AVX": "1"
+    }
+  },
+  "sources": [
+    "Valve Steam Support: Counter-Strike 2 macOS Deprecation Notice (October 2023)",
+    "IGN: Counter-Strike 2 Drops Mac Support (October 2023)",
+    "MacRumors: Valve Drops Support for Counter-Strike 2 on Mac (October 2023)"
+  ]
+}

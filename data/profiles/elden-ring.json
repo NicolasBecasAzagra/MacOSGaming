@@ -1,0 +1,26 @@
+{
+  "id": "elden-ring",
+  "name": "Elden Ring",
+  "publisher": "FromSoftware / Bandai Namco",
+  "compatibility_status": "likely_compatible",
+  "confidence_level": "verified",
+  "last_verified": "2026-10-09",
+  "anti_cheat": {
+    "name": "Easy Anti-Cheat (EAC)",
+    "type": "kernel_ring0",
+    "supported_on_macos": false,
+    "offline_mode_allowed": true
+  },
+  "launch_policy": "allow_offline_only",
+  "policy_notice": "Elden Ring renders smoothly via D3DMetal (DirectX 12). Easy Anti-Cheat (EAC) fails on macOS Wine, preventing online multiplayer connectivity. The game must be launched in offline single-player mode.",
+  "recommended_runtime": {
+    "graphics_backend": "d3dmetal_user_provided",
+    "environment_variables": {
+      "WINEMSYNC": "1"
+    }
+  },
+  "sources": [
+    "FromSoftware / Bandai Namco: Elden Ring Steam System Requirements",
+    "Apple Developer: Game Porting Toolkit Evaluation Guidelines"
+  ]
+}

@@ -118,28 +118,27 @@ Queries macOS kernel APIs and IOKit without spawning expensive shell processes:
 - **Rosetta 2 Verification:** Checks existence and accessibility of `/Library/Apple/usr/libexec/oah/libRosettaRuntime` and `oahd` daemon.
 - **Filesystem Verification:** Inspects volume flags of target prefix storage directory for `ST_LOCAL` and case-sensitivity (`kTextEncodingMacRoman` / APFS case preservation).
 
-### 4.2 The Anti-Cheat Sentinel (`AntiCheatSentinel`)
-A deterministic gatekeeper pattern that intercepts launch requests:
-1. Queries target executable and game identifier against the **Compatibility Matrix Database**.
-2. If game requires kernel-level drivers (`vgk.sys`, `BEDaisy.sys` for online multiplayer, `EasyAntiCheat.sys` for online queues):
-   - **Abort launch before execution.**
-   - Emit an informative, user-friendly diagnostic payload:
-     - Identification of blocked anti-cheat system.
-     - Clear explanation why Ring 0 cannot run in user-mode Wine or on Apple Silicon.
-     - Concrete, legal alternative recommendations (e.g. cloud streaming or Windows hardware).
-3. If the game has an offline mode that works with anti-cheat disabled (e.g., GTA V Story Mode with `-nobattleye`, or Elden Ring offline):
-   - Provide a safe single-click toggle with explicit warnings.
+### 4.2 The Anti-Cheat Sentinel & Game Profiles (`data/profiles/`)
+The engine decouples game compatibility definitions from binary code by reading versioned JSON definitions located in `data/profiles/`.
+Each profile conforms to a strict schema with required metadata:
+- `id`: Unique game identifier (e.g. `elden-ring`, `valorant`, `cs2`, `dota-2`).
+- `name`: Display name of the game.
+- `compatibility_status`: `native_macos`, `likely_compatible`, `requires_windows`, `not_supported`.
+- `confidence_level`: `verified`, `probable`, `hypothesis`.
+- `last_verified`: Date of verification (e.g. `2026-10-09`).
+- `sources`: Array of verified citations, official publisher FAQs, or commit references.
+- `anti_cheat`: Details of the anti-cheat system (`kernel_ring0`, `userspace`, `none`, or `offline_bypass_available`).
+- `launch_policy`: Action to take (`allow`, `block_kernel_anticheat`, `offline_only_prompt`).
+- `environment_variables`: Recommended flags (e.g., `ROSETTA_ADVERTISE_AVX=1`, `WINEMSYNC=1`).
+- `graphics_backend`: Recommended translation backend (`dxmt`, `d3dmetal_user_provided`, `dxvk`, `metal_native`).
 
-### 4.3 Compatibility Adapter & Runtime Injection
-For compatible games, the engine constructs a clean execution sandbox:
-- **Environment Variable Layer:**
-  - `ROSETTA_ADVERTISE_AVX=1` (for macOS 15+ Sequoia when game utilizes AVX/AVX2).
-  - `WINEESYNC=0`, `WINEMSYNC=1` (enforcing Mach-based fast synchronization).
-  - `DXMT_LOG_LEVEL=info` (when running open-source DXMT).
-  - `WINEDEBUG=-all` (suppressing spammy non-critical Wine traces in production).
-- **Prefix Sandboxing:**
-  - Keeps game prefixes isolated under `~/Library/Application Support/MacOSGaming/prefixes/<profile_id>`.
-  - Disables Wine drive `Z:` association with root `/` by default to prevent games from scanning personal user directories outside the prefix.
+### 4.3 External Dependency Management (Zero In-Repo Vendoring)
+To ensure full legal compliance and keep the repository lightweight:
+- **No Vendoring:** Wine, DXMT, DXVK, and Apple D3DMetal are **NEVER** stored or checked into this repository.
+- **Versioned Downloader / Detector:**
+  - Open-source packages (DXMT, Wine-CX builds) are downloaded on user request with SHA-256 verification directly from upstream GitHub releases into `~/Library/Application Support/MacOSGaming/runtimes/`.
+  - Apple's proprietary D3DMetal is **never** downloaded automatically; the user must obtain the evaluation DMG directly from Apple Developer Downloads, and MacOSGaming merely detects the user's locally mounted path.
+- **Prefix Isolation:** Prefixes reside strictly in `~/Library/Application Support/MacOSGaming/prefixes/<profile_id>`, isolating Windows registry hives and virtual drives from host system directories.
 
 ### 4.4 Real-Time Diagnostic Classifier (`DiagnosticClassifier`)
 As the game process executes, a streaming pipe monitors `stdout` and `stderr`:
