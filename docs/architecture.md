@@ -118,6 +118,22 @@ Queries macOS kernel APIs and IOKit without spawning expensive shell processes:
 - **Rosetta 2 Verification:** Checks existence and accessibility of `/Library/Apple/usr/libexec/oah/libRosettaRuntime` and `oahd` daemon.
 - **Filesystem Verification:** Inspects volume flags of target prefix storage directory for `ST_LOCAL` and case-sensitivity (`kTextEncodingMacRoman` / APFS case preservation).
 
+#### Gaming Readiness Score Rubric (0 – 100)
+The readiness score evaluates hardware suitability for modern Windows games running under translation layers (see complete specification in [Gaming Readiness Score Docs](gaming-readiness-score.md)):
+- **Apple Silicon:** +30 pts (M1-M4 unified architecture, Metal 3/3.1).
+- **Unified Memory (RAM):**
+  - $\ge$ 32 GB: +25 pts (Tier 1: Enthusiast headroom, 4K textures, zero swap).
+  - 16 GB to < 32 GB: +20 pts (Tier 2: Recommended baseline for modern 3D games).
+  - 8 GB to < 16 GB: **-10 pts (Penalty)** (Severe UMA bottleneck: CPU and GPU contend for ~4 GB usable memory after macOS overhead).
+  - < 8 GB: **-20 pts (Severe Penalty)** (Insufficient for OS + translation runtimes).
+- **macOS Version & AVX2:**
+  - macOS $\ge$ 15 (Sequoia / Tahoe / later): +20 pts (AVX2 supported via Rosetta 2).
+  - macOS < 15: +5 pts (Limited to SSE4.2; AVX instructions crash).
+- **Rosetta 2 Runtime:** +15 pts if installed and active.
+- **Free Disk Space:** +10 pts ($\ge$ 50 GB), +5 pts (25–50 GB), 0 pts (< 25 GB).
+
+$$\text{Final Score} = \min(100, \max(0, \text{Points}))$$
+
 ### 4.2 The Anti-Cheat Sentinel & Game Profiles (`data/profiles/`)
 The engine decouples game compatibility definitions from binary code by reading versioned JSON definitions located in `data/profiles/`.
 Each profile conforms to a strict schema with required metadata:
