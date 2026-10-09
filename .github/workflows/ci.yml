@@ -135,5 +135,39 @@ jobs:
           chmod +x scripts/validate_sources.sh
           ./scripts/validate_sources.sh
 
+  phase-4-app-tests:
+    name: Phase 4 SwiftUI App Build & ViewModel Tests
+    runs-on: macos-14
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode Version
+        run: |
+          if [ -d "/Applications/Xcode_16.1.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
+          elif [ -d "/Applications/Xcode_16.0.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+          elif [ -d "/Applications/Xcode_16.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
+          fi
+          xcode-select -p
+
+      - name: Build MacOSGamingApp (Debug & Release)
+        run: |
+          swift build --product MacOSGamingApp -v
+          swift build --product MacOSGamingApp -c release -v
+
+      - name: Run SwiftUI App ViewModel Unit Tests
+        run: |
+          swift test --filter MacOSGamingAppTests -v
+
+      - name: Verify App Executable Binary
+        run: |
+          BIN_DIR=$(swift build -c release --show-bin-path)
+          echo "Release binary directory: $BIN_DIR"
+          test -x "$BIN_DIR/MacOSGamingApp"
+          echo "MacOSGamingApp binary successfully verified at $BIN_DIR/MacOSGamingApp."
+
 
 

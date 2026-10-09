@@ -201,6 +201,19 @@ Ensures robust execution and clean recovery when launching complex Windows and n
 - **Configurable Execution Watchdog:** Enforces user-defined timeouts (`timeoutSeconds`) to cleanly abort and classify deadlocks or hung processes.
 - **Automated Fallback Retry:** When enabled (`autoRetryWithAlternativeConfig`), detects primary launch failures and automatically attempts a secondary execution using safe fallback parameters (switching DXMT to Wine/DXVK built-in DirectX translation, disabling `WINEMSYNC`, injecting `ROSETTA_ADVERTISE_AVX=1`, and appending `-dx11` rendering flags).
 
+### 4.10 Native macOS SwiftUI Application (`MacOSGamingApp`)
+The native user interface is built strictly with SwiftUI and modern Swift concurrency:
+- **Architecture Pattern (MVVM):**
+  - **ViewModels:** Built with Swift's `@Observable` macro and pinned to `@MainActor` (`AppViewModel`, `DashboardViewModel`, `LibraryViewModel`, `LaunchViewModel`, `DiagnosticsViewModel`, `SettingsViewModel`).
+  - **Direct Core Integration:** Uses `MacOSGamingCore` services (`SystemDetector`, `GameProfileRepository`, `GameLauncher`, `SteamLibraryDetector`, `DependencyManager`, `GameValidator`) exclusively without duplicating business logic.
+  - **Asynchronous Execution:** Long-running I/O and process execution run in background tasks (`Task.detached`), streaming logs back to the UI via thread-safe buffers without blocking the main event loop.
+- **Five Primary Views:**
+  1. **DashboardView:** Displays the Gaming Readiness Score gauge (0–100), Apple Silicon CPU/GPU specifications, unified RAM, and Rosetta 2 / AVX2 availability status cards.
+  2. **LibraryView:** Lists games discovered in the Steam library, dynamically correlates them with `GameProfile` entries, displays `CompatibilityBadge` indicators, and provides instant search and status filtering (Nativos, Compatibles, Solo Offline, Bloqueados).
+  3. **LauncherView:** Interactive execution interface with profile parameters, offline consent controls, live streaming terminal log feed, process exit status, cancellation watchdog, and immediate Anti-Cheat Sentinel warning alerts for kernel-driver blocked games.
+  4. **DiagnosticsView:** Real-time system health checks (`doctor`) and on-demand game benchmark validation (`validate`) with detailed reporting.
+  5. **SettingsView:** External runtime inspection (Wine-CX, DXMT, DXVK, Apple D3DMetal DMG), Steam path configuration, and telemetry toggle (**OFF by default** following Zero Data Leakage principles).
+
 ---
 
 ## 5. Technology Stack Rationale

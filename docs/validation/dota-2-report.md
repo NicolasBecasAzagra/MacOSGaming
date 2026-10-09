@@ -1,6 +1,6 @@
 # Validation Report: Dota 2 (dota-2)
 
-- **Validation Date:** 2026-10-09T12:07:32Z
+- **Validation Date:** 2026-10-09T12:55:52Z
 - **Status:** PASSED (Clean Exit)
 - **Validation Mode:** Dry Run (Simulation)
 
@@ -29,7 +29,7 @@
 ---
 
 ## 3. Performance & Stability Metrics
-- **Startup Initialization Time:** 2.6 ms
+- **Startup Initialization Time:** 1.8 ms
 - **Total Execution Duration:** 0.00 s
 - **Exit Code:** `0`
 - **Terminated by Timeout:** No
@@ -50,7 +50,7 @@
 Profile: Dota 2 (dota-2)
 Target Executable: /simulated/steam/dota-2.exe
 Prefix Sandbox: ~/Library/Application Support/MacOSGaming/prefixes/dota-2
-Configured Environment: ["WINEDEBUG": "-all", "WINEPREFIX": "~/Library/Application Support/MacOSGaming/prefixes/dota-2"]
+Configured Environment: ["WINEPREFIX": "~/Library/Application Support/MacOSGaming/prefixes/dota-2", "WINEDEBUG": "-all"]
 Arguments: []
 [✓] Dry run validated successfully without spawning process.
 ```
