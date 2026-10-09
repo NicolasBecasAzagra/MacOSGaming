@@ -2,13 +2,30 @@ import Foundation
 import Observation
 import MacOSGamingCore
 
+public enum ProfileState: String, Sendable, CaseIterable, Equatable {
+    case optimized = "Optimized"
+    case generic = "Generic"
+}
+
 public struct DisplayGameItem: Identifiable, Sendable {
-    public var id: String { profile?.id ?? "\(steamApp?.appId ?? 0)" }
+    public var id: String { profile?.id ?? "steam-\(steamApp?.appId ?? 0)" }
     public let name: String
     public let steamApp: SteamInstalledApp?
     public let profile: GameProfile?
     public let compatibilityStatus: CompatibilityStatus
     public let isInstalledInSteam: Bool
+
+    public var profileState: ProfileState {
+        profile != nil ? .optimized : .generic
+    }
+
+    public var isOptimized: Bool {
+        profileState == .optimized
+    }
+
+    public var isGeneric: Bool {
+        profileState == .generic
+    }
 
     public init(
         name: String,
@@ -37,6 +54,8 @@ public final class LibraryViewModel {
 
     public enum CompatibilityFilter: String, CaseIterable, Identifiable {
         case all = "All"
+        case optimized = "Optimized"
+        case generic = "Generic"
         case native = "Native"
         case compatible = "Compatible"
         case offlineOnly = "Offline Only"
@@ -60,6 +79,7 @@ public final class LibraryViewModel {
 
         var combined: [DisplayGameItem] = []
 
+        // 1. Add all profiled games, linking Steam installation if detected
         for p in profiles {
             let matchedSteam = steamApps.first {
                 $0.profileId == p.id || (p.steamAppId != nil && $0.appId == p.steamAppId)
@@ -75,8 +95,12 @@ public final class LibraryViewModel {
             )
         }
 
+        // 2. Add ALL remaining installed Steam games (unprofiled / generic)
         for app in steamApps {
-            if !combined.contains(where: { $0.steamApp?.appId == app.appId }) {
+            let alreadyAdded = combined.contains { item in
+                item.steamApp?.appId == app.appId || (item.profile?.steamAppId != nil && item.profile?.steamAppId == app.appId)
+            }
+            if !alreadyAdded {
                 combined.append(
                     DisplayGameItem(
                         name: app.name,
@@ -103,6 +127,10 @@ public final class LibraryViewModel {
             switch selectedFilter {
             case .all:
                 return true
+            case .optimized:
+                return item.profileState == .optimized
+            case .generic:
+                return item.profileState == .generic
             case .native:
                 return item.compatibilityStatus == .nativeMacOS
             case .compatible:
@@ -113,5 +141,26 @@ public final class LibraryViewModel {
                 return item.compatibilityStatus == .notSupported || item.profile?.launchPolicy == .blockKernelAnticheat || (item.profile?.antiCheat.type == .kernelRing0)
             }
         }
+    }
+
+    /// Generates a pre-filled GitHub issue URL using profile_request.yml
+    public func profileRequestURL(for item: DisplayGameItem) -> URL {
+        var components = URLComponents(string: "https://github.com/NicolasBecasAzagra/MacOSGaming/issues/new")!
+        let safeName = item.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let kebabId = safeName.lowercased()
+            .replacingOccurrences(of: " ", with: "-")
+            .filter { $0.isLetter || $0.isNumber || $0 == "-" }
+
+        var queryItems = [
+            URLQueryItem(name: "template", value: "profile_request.yml"),
+            URLQueryItem(name: "title", value: "[PROFILE REQUEST]: \(safeName)"),
+            URLQueryItem(name: "game_name", value: safeName),
+            URLQueryItem(name: "game_id", value: kebabId)
+        ]
+        if let appId = item.steamApp?.appId {
+            queryItems.append(URLQueryItem(name: "steam_app_id", value: String(appId)))
+        }
+        components.queryItems = queryItems
+        return components.url ?? URL(string: "https://github.com/NicolasBecasAzagra/MacOSGaming/issues/new?template=profile_request.yml")!
     }
 }

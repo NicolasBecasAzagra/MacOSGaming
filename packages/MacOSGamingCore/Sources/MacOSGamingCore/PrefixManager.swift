@@ -68,4 +68,53 @@ public struct PrefixManager: Sendable {
             isInitialized: true
         )
     }
+
+    // MARK: - Prefix Dependency Manifests
+
+    /// Resolves the URL for the prefix's installed dependencies manifest
+    public func manifestURL(for profileId: String) -> URL {
+        prefixInfo(for: profileId).prefixDirectory.appendingPathComponent("installed_dependencies.json")
+    }
+
+    /// Loads the manifest of installed dependencies for a prefix
+    public func loadManifest(for profileId: String) -> PrefixDependencyManifest {
+        let url = manifestURL(for: profileId)
+        guard FileManager.default.fileExists(atPath: url.path),
+              let data = try? Data(contentsOf: url) else {
+            return PrefixDependencyManifest(profileId: profileId)
+        }
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return (try? decoder.decode(PrefixDependencyManifest.self, from: data)) ?? PrefixDependencyManifest(profileId: profileId)
+    }
+
+    /// Saves the manifest of installed dependencies into the prefix
+    public func saveManifest(_ manifest: PrefixDependencyManifest, for profileId: String) throws {
+        let url = manifestURL(for: profileId)
+        let fm = FileManager.default
+        let parent = url.deletingLastPathComponent()
+        if !fm.fileExists(atPath: parent.path) {
+            try fm.createDirectory(at: parent, withIntermediateDirectories: true)
+        }
+
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        encoder.dateEncodingStrategy = .iso8601
+        let data = try encoder.encode(manifest)
+        try data.write(to: url, options: .atomic)
+    }
+
+    /// Records newly installed dependencies in the prefix manifest
+    public func recordInstalledDependencies(_ dependencies: [GameDependency], for profileId: String) throws {
+        var manifest = loadManifest(for: profileId)
+        for dep in dependencies {
+            manifest.recordInstallation(of: dep)
+        }
+        try saveManifest(manifest, for: profileId)
+    }
+
+    /// Checks if a dependency is recorded as installed in the prefix
+    public func isDependencyInstalled(id: String, profileId: String) -> Bool {
+        loadManifest(for: profileId).isInstalled(dependencyId: id)
+    }
 }

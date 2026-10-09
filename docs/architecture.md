@@ -1,9 +1,8 @@
 # Technical Architecture Specification
-# Arquitectura Técnica del Sistema — MacOSGaming
 
 **Document ID:** `DOC-ARCH-001`  
 **Project:** MacOSGaming (macOS Open Source Gaming Compatibility Ecosystem)  
-**Status:** Proposed Architecture / En Revisión Técnica  
+**Status:** Approved Technical Architecture  
 **Date:** October 2026  
 **Lead Architect:** Engineering Team  
 
@@ -213,6 +212,31 @@ The native user interface is built strictly with SwiftUI and modern Swift concur
   3. **LauncherView:** Interactive execution interface with profile parameters, offline consent controls, live streaming terminal log feed, process exit status, cancellation watchdog, and immediate Anti-Cheat Sentinel warning alerts for kernel-driver blocked games.
   4. **DiagnosticsView:** Real-time system health checks (`doctor`) and on-demand game benchmark validation (`validate`) with detailed reporting.
   5. **SettingsView:** External runtime inspection (Wine-CX, DXMT, DXVK, Apple D3DMetal DMG), Steam path configuration, and telemetry toggle (**OFF by default** following Zero Data Leakage principles).
+
+### 4.11 Per-Game Dependency Resolution & Prefix Manifests (`DependencyManager` & `DependencyDownloader`)
+Provides automated, safe, and transparent runtime dependency provisioning customized for each game title:
+- **Profile-Driven Dependency Graph:**
+  - Games running natively on Apple Silicon bypass all compatibility runtimes.
+  - Non-native Windows titles dynamically inspect their `GameProfile`:
+    - **Runner:** `Wine-CX (wine64)` (~120.0 MB).
+    - **Graphics Translator:** `DXMT` Direct3D 11 to Metal (~15.5 MB), `DXVK-macOS` (~18.2 MB), or local user-mounted `Apple D3DMetal`.
+    - **Prerequisites:** `Microsoft Visual C++ 2015-2022 Redistributable (x64)` (~24.1 MB) for titles utilizing modern Windows C runtime DLLs.
+- **Strict User Confirmation Policy:** Zero downloads occur without explicit interactive confirmation. Before launching any title missing prerequisites, the UI presents a `DependencyResolutionSheet` modal detailing:
+  - Exact package name, category, and license type.
+  - Exact uncompressed/download size in MB (calculated and exposed prior to downloading).
+  - Clickable official source URL for complete transparency.
+  - Per-item installation checkboxes and total size accumulator.
+- **Real-Time Progress Tracking via `URLSessionDownloadDelegate`:**
+  - Employs dedicated `DependencyDownloader` conforming to `URLSessionDownloadDelegate`.
+  - Captures real byte stream updates (`urlSession(_:downloadTask:didWriteData:totalBytesWritten:totalBytesExpectedToWrite:)`) to drive deterministic progress bars and byte metrics without artificial progress estimation.
+- **Isolated Prefix Manifests (`installed_dependencies.json`):**
+  - Upon successful installation and user confirmation, records installed dependencies in `~/Library/Application Support/MacOSGaming/prefixes/<profile_id>/installed_dependencies.json`.
+  - Includes dependency ID, name, size, official source URL, installation timestamp, and destination filename.
+  - Subsequent launches query the manifest, eliminating redundant re-downloads and preserving prefix sandbox state.
+- **Complete Steam Library Integration:**
+  - `SteamLibraryDetector` parses all installed titles across primary and secondary storage libraries.
+  - Games with verified configurations receive the **"Optimized"** status badge alongside their compatibility tier.
+  - Games without existing configurations receive the **"Generic/Unprofiled"** badge and an interactive **"Request Profile"** action linking directly to pre-filled GitHub issue templates (`profile_request.yml`).
 
 ---
 

@@ -29,13 +29,13 @@ public struct CompatibilityBadge: View {
     private var title: String {
         switch status {
         case .nativeMacOS:
-            return "Nativo macOS"
+            return "Native macOS"
         case .likelyCompatible:
-            return "Compatible (DXMT/Wine)"
+            return "Compatible (Wine/DXMT)"
         case .requiresWindows:
-            return "Requiere Windows"
+            return "Requires Windows"
         case .notSupported:
-            return "Bloqueado (Anti-Cheat)"
+            return "Blocked (Anti-Cheat)"
         }
     }
 
@@ -67,5 +67,40 @@ public struct CompatibilityBadge: View {
 
     private var foregroundColor: Color {
         backgroundColor
+    }
+}
+
+public struct ProfileStateBadge: View {
+    public let state: ProfileState
+
+    public init(state: ProfileState) {
+        self.state = state
+    }
+
+    public var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: state == .optimized ? "sparkles" : "tag.fill")
+                .font(.system(size: 9, weight: .bold))
+            Text(state == .optimized ? "Optimized" : "Generic/Unprofiled")
+                .font(.system(size: 10, weight: .bold))
+        }
+        .padding(.horizontal, 7)
+        .padding(.vertical, 3)
+        .background(badgeColor.opacity(0.18))
+        .foregroundColor(badgeColor)
+        .overlay(
+            RoundedRectangle(cornerRadius: 6)
+                .stroke(badgeColor.opacity(0.35), lineWidth: 1)
+        )
+        .cornerRadius(6)
+    }
+
+    private var badgeColor: Color {
+        switch state {
+        case .optimized:
+            return .purple
+        case .generic:
+            return .secondary
+        }
     }
 }

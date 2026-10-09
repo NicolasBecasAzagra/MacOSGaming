@@ -198,4 +198,139 @@ public struct DependencyManager: Sendable {
         }
         return false
     }
+
+    // MARK: - Per-Game Dependency Resolution
+
+    /// Returns the full list of dependencies required by a specific game profile
+    public func resolveGameDependencies(for profile: GameProfile) -> [GameDependency] {
+        var deps: [GameDependency] = []
+
+        // If game is native macOS, no Wine/DX translation layers needed
+        if profile.compatibilityStatus == .nativeMacOS {
+            return deps
+        }
+
+        // 1. Wine-CX Runtime is required for all Windows binaries
+        deps.append(
+            GameDependency(
+                dependencyId: "wine-cx",
+                name: "Wine-CX Runtime (wine64)",
+                category: .runner,
+                sizeInMB: 120.0,
+                officialSourceURL: URL(string: "https://github.com/Gcenx/winecx/releases")!,
+                downloadURL: URL(string: "https://github.com/Gcenx/winecx/releases/latest/download/wine-crossover.tar.xz"),
+                targetFilename: "wine64",
+                isRequired: true,
+                licenseType: "LGPL v2.1+"
+            )
+        )
+
+        // 2. Graphics Translation Layer based on profile
+        switch profile.recommendedRuntime.graphicsBackend {
+        case .dxmt:
+            deps.append(
+                GameDependency(
+                    dependencyId: "dxmt",
+                    name: "DXMT Translation Layer (Direct3D 11 -> Metal)",
+                    category: .graphicsTranslator,
+                    sizeInMB: 15.5,
+                    officialSourceURL: URL(string: "https://github.com/3Shain/dxmt/releases")!,
+                    downloadURL: URL(string: "https://github.com/3Shain/dxmt/releases/latest/download/dxmt.tar.gz"),
+                    targetFilename: "d3d11.dll",
+                    isRequired: true,
+                    licenseType: "LGPL v2.1+ / MIT"
+                )
+            )
+        case .dxvk:
+            deps.append(
+                GameDependency(
+                    dependencyId: "dxvk",
+                    name: "DXVK-macOS (Direct3D 9-11 -> MoltenVK)",
+                    category: .graphicsTranslator,
+                    sizeInMB: 18.2,
+                    officialSourceURL: URL(string: "https://github.com/Gcenx/DXVK-macOS/releases")!,
+                    downloadURL: URL(string: "https://github.com/Gcenx/DXVK-macOS/releases/latest/download/dxvk-macOS.tar.gz"),
+                    targetFilename: "dxgi.dll",
+                    isRequired: true,
+                    licenseType: "Zlib / MIT"
+                )
+            )
+        case .d3dmetalUserProvided:
+            deps.append(
+                GameDependency(
+                    dependencyId: "d3dmetal",
+                    name: "Apple D3DMetal (Developer Evaluation DMG)",
+                    category: .graphicsTranslator,
+                    sizeInMB: 0.0,
+                    officialSourceURL: URL(string: "https://developer.apple.com/games/")!,
+                    downloadURL: nil,
+                    targetFilename: "libd3dshared.dylib",
+                    isRequired: true,
+                    licenseType: "Apple Evaluation License"
+                )
+            )
+        case .metalNative:
+            break
+        }
+
+        // 3. Visual C++ Redistributable (VC++ 2015-2022) runtime libraries
+        if profile.compatibilityStatus == .likelyCompatible || profile.compatibilityStatus == .requiresWindows {
+            deps.append(
+                GameDependency(
+                    dependencyId: "vcredist",
+                    name: "Microsoft Visual C++ 2015-2022 Redistributable (x64)",
+                    category: .runtimePrerequisite,
+                    sizeInMB: 24.1,
+                    officialSourceURL: URL(string: "https://learn.microsoft.com/cpp/windows/latest-supported-vc-redist")!,
+                    downloadURL: URL(string: "https://aka.ms/vs/17/release/vc_redist.x64.exe"),
+                    targetFilename: "vc_redist.x64.exe",
+                    isRequired: false,
+                    licenseType: "Microsoft Software License"
+                )
+            )
+        }
+
+        return deps
+    }
+
+    /// Checks which dependencies are currently missing for a specific game profile and its prefix
+    public func checkMissingDependencies(for profile: GameProfile, prefixManager: PrefixManager = PrefixManager()) -> [GameDependency] {
+        let allRequired = resolveGameDependencies(for: profile)
+        let manifest = prefixManager.loadManifest(for: profile.id)
+
+        var missing: [GameDependency] = []
+
+        for dep in allRequired {
+            // 1. If already recorded as installed in the prefix manifest, skip
+            if manifest.isInstalled(dependencyId: dep.dependencyId) {
+                continue
+            }
+
+            // 2. Check if already present on host system
+            switch dep.dependencyId {
+            case "wine-cx":
+                if resolveWineBinary() != nil {
+                    continue
+                }
+            case "dxmt":
+                if resolveDXMTDirectory() != nil {
+                    continue
+                }
+            case "dxvk":
+                if resolveDXVKDirectory() != nil {
+                    continue
+                }
+            case "d3dmetal":
+                if checkD3DMetalEvaluationMounted() {
+                    continue
+                }
+            default:
+                break
+            }
+
+            missing.append(dep)
+        }
+
+        return missing
+    }
 }

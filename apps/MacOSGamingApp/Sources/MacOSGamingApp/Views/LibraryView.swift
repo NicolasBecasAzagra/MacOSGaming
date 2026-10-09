@@ -23,7 +23,7 @@ public struct LibraryView: View {
                 .padding(8)
                 .background(Color(NSColor.controlBackgroundColor))
                 .cornerRadius(8)
-                .frame(maxWidth: 320)
+                .frame(maxWidth: 280)
 
                 Picker("Filter", selection: $viewModel.selectedFilter) {
                     ForEach(LibraryViewModel.CompatibilityFilter.allCases) { filter in
@@ -31,7 +31,7 @@ public struct LibraryView: View {
                     }
                 }
                 .pickerStyle(.segmented)
-                .frame(maxWidth: 450)
+                .frame(maxWidth: 500)
 
                 Spacer()
 
@@ -49,7 +49,7 @@ public struct LibraryView: View {
             ScrollView {
                 LazyVStack(spacing: 10) {
                     ForEach(viewModel.filteredItems) { item in
-                        GameItemRow(item: item, onSelect: onSelectGame)
+                        GameItemRow(item: item, viewModel: viewModel, onSelect: onSelectGame)
                     }
 
                     if viewModel.filteredItems.isEmpty {
@@ -72,6 +72,7 @@ public struct LibraryView: View {
 
 private struct GameItemRow: View {
     let item: DisplayGameItem
+    let viewModel: LibraryViewModel
     let onSelect: (String) -> Void
 
     var body: some View {
@@ -106,7 +107,28 @@ private struct GameItemRow: View {
 
             Spacer()
 
-            CompatibilityBadge(status: item.compatibilityStatus)
+            // State & Compatibility Badges
+            ProfileStateBadge(state: item.profileState)
+
+            if item.isOptimized {
+                CompatibilityBadge(status: item.compatibilityStatus)
+            } else {
+                // Unprofiled game: Button to request a new community profile
+                Button(action: {
+                    let url = viewModel.profileRequestURL(for: item)
+                    NSWorkspace.shared.open(url)
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "square.and.pencil")
+                            .font(.system(size: 10))
+                        Text("Request Profile")
+                            .font(.system(size: 11, weight: .medium))
+                    }
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .help("Submit an issue on GitHub to request an optimized profile for this title.")
+            }
 
             Button("Open in Launcher") {
                 onSelect(item.profile?.id ?? item.id)
@@ -127,7 +149,7 @@ private struct GameItemRow: View {
         if let p = item.profile {
             return "ID: \(p.id) • Backend: \(p.recommendedRuntime.graphicsBackend.rawValue)"
         } else if let s = item.steamApp {
-            return "Steam App ID: \(s.appId)"
+            return "Steam App ID: \(s.appId) • Unprofiled"
         }
         return "Detected game"
     }

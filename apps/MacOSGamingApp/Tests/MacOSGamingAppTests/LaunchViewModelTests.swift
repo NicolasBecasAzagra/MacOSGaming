@@ -70,6 +70,45 @@ final class LaunchViewModelTests: XCTestCase {
         viewModel.isLaunching = true
         viewModel.cancel()
         XCTAssertFalse(viewModel.isLaunching)
-        XCTAssertTrue(viewModel.logs.contains("Cancelación"))
+        XCTAssertTrue(viewModel.logs.contains("Cancellation"))
+    }
+
+    func testLaunchViewModelPresentsDependencySheetBeforeLaunch() {
+        let repo = GameProfileRepository()
+        let launcher = GameLauncher(profileRepository: repo)
+        let tempPrefixDir = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        let prefixManager = PrefixManager(basePrefixDirectory: tempPrefixDir)
+        let viewModel = LaunchViewModel(launcher: launcher, profileRepository: repo, prefixManager: prefixManager)
+
+        viewModel.selectGame(gameId: "elden-ring")
+        viewModel.offlineConsent = true
+        viewModel.isDryRun = false
+
+        viewModel.launch()
+
+        XCTAssertTrue(viewModel.showDependencySheet, "Dependency resolution modal must be presented when runtimes are missing")
+        XCTAssertFalse(viewModel.missingDependencies.isEmpty, "Missing dependencies must be enumerated")
+        XCTAssertGreaterThan(viewModel.totalSelectedSizeMB, 0.0, "Total size must be calculated prior to installation")
+        XCTAssertFalse(viewModel.formattedTotalSelectedSize.isEmpty)
+        XCTAssertFalse(viewModel.isLaunching, "Execution must not proceed without user confirmation")
+    }
+
+    func testLaunchViewModelCancelDependencyResolutionAbortsLaunch() {
+        let repo = GameProfileRepository()
+        let launcher = GameLauncher(profileRepository: repo)
+        let tempPrefixDir = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        let prefixManager = PrefixManager(basePrefixDirectory: tempPrefixDir)
+        let viewModel = LaunchViewModel(launcher: launcher, profileRepository: repo, prefixManager: prefixManager)
+
+        viewModel.selectGame(gameId: "elden-ring")
+        viewModel.offlineConsent = true
+        viewModel.launch()
+        XCTAssertTrue(viewModel.showDependencySheet)
+
+        viewModel.cancelDependencyResolution()
+
+        XCTAssertFalse(viewModel.showDependencySheet)
+        XCTAssertFalse(viewModel.isDownloadingDependencies)
+        XCTAssertTrue(viewModel.logs.contains("cancelled by user"))
     }
 }
