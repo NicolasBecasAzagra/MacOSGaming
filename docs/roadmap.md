@@ -1,8 +1,8 @@
 # Engineering Roadmap & Milestones
-# Hoja de Ruta de Ingeniería por Fases — MachPlay Bridge
+# Hoja de Ruta de Ingeniería por Fases — MacOSGaming
 
 **Document ID:** `DOC-ROADMAP-001`  
-**Project:** MachPlay Bridge  
+**Project:** MacOSGaming  
 **Version:** 1.0.0-draft  
 **Date:** October 2026  
 
@@ -35,12 +35,12 @@ The engineering roadmap is organized into five structured phases to ensure stabi
 
 ## Phase 1: Monorepo Foundation & Core MVP (Current Target)
 - [ ] Initialize monorepo directory layout (`apps/`, `packages/`, `docs/`, `.github/`).
-- [ ] Implement `MachPlayCore` Swift Package:
+- [ ] Implement `MacOSGamingCore` Swift Package:
   - `SystemDetector`: CPU (M1-M4), RAM, GPU Metal features, OS version, disk space, and Rosetta 2 status.
   - `AntiCheatSentinel`: Hardware/software policy gatekeeper for unsupported anti-cheat games.
   - `GameProfileRepository`: Embedded JSON database with profiles for popular games.
   - `DiagnosticClassifier`: Basic regex and pattern matcher for Wine / runtime errors.
-- [ ] Implement `MachPlayCLI` (`machplay doctor`, `machplay info`, `machplay run`).
+- [ ] Implement `MacOSGamingCLI` (`macosgaming doctor`, `macosgaming info`, `macosgaming run`).
 - [ ] Create basic GitHub Actions CI pipeline: linting, formatting, automated unit tests.
 - [ ] Write professional `README.md` and `LICENSE` (MIT).
 - [ ] Verify MVP end-to-end: system detection + diagnostic run on local host.
@@ -82,7 +82,7 @@ The engineering roadmap is organized into five structured phases to ensure stabi
   - Epic Games Store manifests scanner (`.item` files).
   - GOG Galaxy library detection.
   - Battle.net installation scanner.
-- [ ] One-click library synchronization: imports existing installed games into MachPlay library.
+- [ ] One-click library synchronization: imports existing installed games into MacOSGaming library.
 - [ ] Custom game importer: drag-and-drop `.exe` installer with automatic profile matching.
 
 ---

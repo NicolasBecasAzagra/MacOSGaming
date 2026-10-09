@@ -1,8 +1,8 @@
 # Technical Architecture Specification
-# Arquitectura Técnica del Sistema — MachPlay Bridge
+# Arquitectura Técnica del Sistema — MacOSGaming
 
 **Document ID:** `DOC-ARCH-001`  
-**Project:** MachPlay Bridge (macOS Open Source Gaming Compatibility Ecosystem)  
+**Project:** MacOSGaming (macOS Open Source Gaming Compatibility Ecosystem)  
 **Status:** Proposed Architecture / En Revisión Técnica  
 **Date:** October 2026  
 **Lead Architect:** Engineering Team  
@@ -11,7 +11,7 @@
 
 ## 1. Executive Vision & Design Philosophy
 
-**MachPlay Bridge** is an enterprise-grade, open-source macOS desktop application and modular engine designed to configure, launch, monitor, and diagnose Windows games on Apple Silicon (M1/M2/M3/M4) computers running macOS Sonoma (14.x) and macOS Sequoia (15.x/16.x).
+**MacOSGaming** is an enterprise-grade, open-source macOS desktop application and modular engine designed to configure, launch, monitor, and diagnose Windows games on Apple Silicon (M1/M2/M3/M4) computers running macOS Sonoma (14.x) and macOS Sequoia (15.x/16.x).
 
 ### Core Principles
 1. **Zero-Compromise Legal & Ethical Posture:** Strictly zero bundling or distribution of proprietary game binaries, cracked DLLs, or bypasses. Respect anti-cheat boundaries and terms of service.
@@ -35,9 +35,9 @@ MacOSGaming/
 │   │   └── compatibility_request.md
 │   └── PULL_REQUEST_TEMPLATE.md
 ├── apps/
-│   └── MachPlay/                  # Native macOS SwiftUI App
+│   └── MacOSGamingApp/            # Native macOS SwiftUI App
 │       ├── App/
-│       │   ├── MachPlayApp.swift  # App lifecycle & NavigationSplitView
+│       │   ├── MacOSGamingApp.swift # App lifecycle & NavigationSplitView
 │       │   └── MenuCommands.swift # Menu bar shortcuts & system actions
 │       ├── Views/
 │       │   ├── Dashboard/         # System specs, chip telemetry, readiness
@@ -47,17 +47,17 @@ MacOSGaming/
 │       │   └── Settings/          # Prefix management & runtime selector
 │       └── Resources/             # Assets, Icons, Localizations (en, es)
 ├── packages/
-│   ├── MachPlayCore/              # Swift Engine Package
-│   │   ├── Sources/MachPlayCore/
+│   ├── MacOSGamingCore/           # Swift Engine Package
+│   │   ├── Sources/MacOSGamingCore/
 │   │   │   ├── SystemDetector/    # Chip (M1-M4), RAM, GPU, OS, Rosetta status
 │   │   │   ├── Compatibility/     # Game Profiles DB, Anti-Cheat Sentinel
 │   │   │   ├── PrefixManager/     # Wine/Darwin prefix creation & isolation
 │   │   │   ├── Runner/            # Subprocess runner, environment injector
 │   │   │   ├── Diagnostics/       # Real-time log parser & pattern classifier
 │   │   │   └── Launchers/         # Steam, Epic, GOG local scanner
-│   │   └── Tests/MachPlayCoreTests/
-│   └── MachPlayCLI/               # Headless CLI for developers & automation
-│       └── Sources/MachPlayCLI/   # 'machplay doctor', 'machplay run', etc.
+│   │   └── Tests/MacOSGamingCoreTests/
+│   └── MacOSGamingCLI/            # Headless CLI for developers & automation
+│       └── Sources/MacOSGamingCLI/ # 'macosgaming doctor', 'macosgaming run', etc.
 ├── docs/
 │   ├── research/
 │   │   └── state-of-mac-gaming.md # Low-level engineering research
@@ -81,7 +81,7 @@ MacOSGaming/
                                          |
                                          v
 +-----------------------------------------------------------------------------------+
-|                              CORE ENGINE (MachPlayCore)                           |
+|                              CORE ENGINE (MacOSGamingCore)                        |
 |                                                                                   |
 |  +--------------------+  +----------------------+  +---------------------------+  |
 |  | SystemDetector     |  | AntiCheatSentinel    |  | GameProfileRepository     |  |
@@ -138,7 +138,7 @@ For compatible games, the engine constructs a clean execution sandbox:
   - `DXMT_LOG_LEVEL=info` (when running open-source DXMT).
   - `WINEDEBUG=-all` (suppressing spammy non-critical Wine traces in production).
 - **Prefix Sandboxing:**
-  - Keeps game prefixes isolated under `~/Library/Application Support/MachPlay/prefixes/<profile_id>`.
+  - Keeps game prefixes isolated under `~/Library/Application Support/MacOSGaming/prefixes/<profile_id>`.
   - Disables Wine drive `Z:` association with root `/` by default to prevent games from scanning personal user directories outside the prefix.
 
 ### 4.4 Real-Time Diagnostic Classifier (`DiagnosticClassifier`)
@@ -157,8 +157,8 @@ As the game process executes, a streaming pipe monitors `stdout` and `stderr`:
 | Layer | Selected Technology | Rationale & Alternatives Considered |
 | :--- | :--- | :--- |
 | **GUI Frontend** | **Swift 6 / SwiftUI** | Native performance, instant startup, minimal memory consumption (~50MB vs >300MB in Electron), native macOS HIG look & feel, direct access to Metal and CoreAudio APIs. |
-| **Core Engine** | **Swift Package (`MachPlayCore`)** | Shared logic between GUI app and CLI. Type-safe async/await concurrency, zero FFI overhead when interfacing with macOS system frameworks. |
-| **CLI Utility** | **Swift (`MachPlayCLI`)** | Provides `machplay` terminal commands for headless scripting, automated CI tests, and power-user workflows. |
+| **Core Engine** | **Swift Package (`MacOSGamingCore`)** | Shared logic between GUI app and CLI. Type-safe async/await concurrency, zero FFI overhead when interfacing with macOS system frameworks. |
+| **CLI Utility** | **Swift (`MacOSGamingCLI`)** | Provides `macosgaming` terminal commands for headless scripting, automated CI tests, and power-user workflows. |
 | **Graphics Translation** | **DXMT (D3D11) & User D3DMetal (D3D12)** | DXMT is fully open-source (LGPL/MIT) and translates directly to Metal 3. D3DMetal is integrated dynamically if present on user machine without violating Apple redistribution license. |
 | **CI/CD & Quality** | **GitHub Actions (macOS 14/15 runners)** | Automated `swift test`, SwiftLint, formatting checks, and signed DMG creation. |
 
@@ -166,7 +166,7 @@ As the game process executes, a streaming pipe monitors `stdout` and `stderr`:
 
 ## 6. Open-Source License Selection
 
-We propose releasing MachPlay Bridge under the **MIT License** (or **Apache License 2.0**):
+We propose releasing MacOSGaming under the **MIT License** (or **Apache License 2.0**):
 - **Why Permissive License:** Maximizes developer adoption, allows enterprise contributions, and permits flexible linking with external components.
 - **Compatibility with Upstream:**
   - Wine is licensed under **LGPL v2.1+**.
