@@ -219,30 +219,43 @@ public struct SystemDetector: Sendable {
     ) -> Int {
         var score = 0
 
-        // Apple Silicon is essential for modern high-performance Metal translation
-        if isAppleSilicon { score += 30 }
-
-        // Memory scoring (UMA)
-        let memoryGB = Double(memoryBytes) / (1024 * 1024 * 1024)
-        if memoryGB >= 16 {
-            score += 25
-        } else if memoryGB >= 8 {
-            score += 15
+        // 1. Processor Architecture (Apple Silicon M-Series)
+        // Apple Silicon is essential for modern high-performance Metal translation & unified memory
+        if isAppleSilicon {
+            score += 30
         }
 
-        // macOS version (Sequoia 15+ has AVX2 evaluation support in Rosetta 2)
+        // 2. Memory scoring (Unified Memory Architecture - UMA)
+        // In UMA, CPU and GPU share the same physical memory pool.
+        // On systems with < 16 GB, the operating system + translation layer + GPU buffers
+        // cause severe swapping and memory pressure. Systems under 16 GB are penalised.
+        let memoryGB = Double(memoryBytes) / (1024 * 1024 * 1024)
+        if memoryGB >= 32 {
+            score += 25
+        } else if memoryGB >= 16 {
+            score += 20
+        } else if memoryGB >= 8 {
+            // Penalty: 8 GB is severely bottlenecked for shared VRAM + translation
+            score -= 10
+        } else {
+            // Severe penalty: < 8 GB is inadequate for modern gaming runtimes
+            score -= 20
+        }
+
+        // 3. macOS Version (AVX2 evaluation support in Rosetta 2)
+        // macOS 15+ (Sequoia / Tahoe) enables AVX/AVX2 instruction emulation
         if isSequoia {
             score += 20
         } else {
-            score += 10
+            score += 5
         }
 
-        // Rosetta 2 presence
+        // 4. Rosetta 2 Translation Environment
         if rosettaInstalled {
             score += 15
         }
 
-        // Storage space (minimum 25 GB recommended)
+        // 5. Storage Space (minimum 25 GB recommended, 50 GB optimal)
         let freeGB = Double(freeDiskBytes) / (1024 * 1024 * 1024)
         if freeGB >= 50 {
             score += 10
