@@ -34,4 +34,39 @@ final class SystemDetectorTests: XCTestCase {
         )
         XCTAssertEqual(baselineScore, 55)
     }
+
+    func testMacOSMarketingNameResolution() {
+        XCTAssertEqual(SystemDetector.osMarketingName(forMajorVersion: 11), "Big Sur")
+        XCTAssertEqual(SystemDetector.osMarketingName(forMajorVersion: 12), "Monterey")
+        XCTAssertEqual(SystemDetector.osMarketingName(forMajorVersion: 13), "Ventura")
+        XCTAssertEqual(SystemDetector.osMarketingName(forMajorVersion: 14), "Sonoma")
+        XCTAssertEqual(SystemDetector.osMarketingName(forMajorVersion: 15), "Sequoia")
+        XCTAssertEqual(SystemDetector.osMarketingName(forMajorVersion: 16), "Tahoe")
+        XCTAssertEqual(SystemDetector.osMarketingName(forMajorVersion: 26), "Tahoe")
+        XCTAssertEqual(SystemDetector.osMarketingName(forMajorVersion: 10), "Catalina")
+    }
+
+    func testAVX2SupportValidationByMajorVersion() {
+        // macOS < 15 lacks AVX2 evaluation in Rosetta 2
+        XCTAssertFalse(SystemDetector.validateAVX2Support(majorVersion: 13))
+        XCTAssertFalse(SystemDetector.validateAVX2Support(majorVersion: 14))
+
+        // macOS >= 15 supports AVX2 (Sequoia 15, Tahoe 16, etc.)
+        XCTAssertTrue(SystemDetector.validateAVX2Support(majorVersion: 15))
+        XCTAssertTrue(SystemDetector.validateAVX2Support(majorVersion: 16))
+        XCTAssertTrue(SystemDetector.validateAVX2Support(majorVersion: 26))
+    }
+
+    func testDoctorReportContainsMarketingNameAndAVX2() {
+        let detector = SystemDetector()
+        let report = detector.detect()
+
+        XCTAssertFalse(report.osMarketingName.isEmpty, "OS marketing name should not be empty")
+        XCTAssertGreaterThanOrEqual(report.osMajorVersion, 10, "macOS major version must be >= 10")
+        XCTAssertEqual(
+            report.supportsAVX2,
+            report.osMajorVersion >= 15,
+            "AVX2 support flag should match majorVersion >= 15"
+        )
+    }
 }

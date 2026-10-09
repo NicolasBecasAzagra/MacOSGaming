@@ -109,21 +109,26 @@ public struct ProcessRunner: Sendable {
     }
 
     /// Executes a completely legal, self-contained test run to verify the runner, environment injection, and log parsing.
+    /// Explicitly clarifies that this executes a synthetic test harness, NOT the actual game, and does not assert game compatibility.
     public func executeLegalTestRun(
         profile: GameProfile,
         additionalArgs: [String] = [],
         onOutput: (@Sendable (String) -> Void)? = nil
     ) -> ExecutionResult {
         let testScript = """
-        echo "=== [MacOSGaming Sandbox Test Runner] ==="
-        echo "Profile ID: \(profile.id)"
-        echo "Game Name: \(profile.name)"
-        echo "ROSETTA_ADVERTISE_AVX=$ROSETTA_ADVERTISE_AVX"
-        echo "WINEMSYNC=$WINEMSYNC"
-        echo "Execution Mode: Sandboxed Test Harness"
-        echo "Simulating DirectX/Metal pipeline handshake: OK"
-        echo "Checking anti-cheat status: No kernel anti-cheat active in test sandbox"
-        echo "=== Test Harness Completed Successfully ==="
+        echo "================================================================"
+        echo "       [MACOSGAMING SANDBOX TEST HARNESS: DRY RUN EXECUTION]    "
+        echo "================================================================"
+        echo " TARGET PROFILE: \(profile.name) (\(profile.id))"
+        echo " HARNESS TYPE: Synthetic Environment & Diagnostic Harness"
+        echo " STATUS: Executing test harness ONLY — NOT the actual game"
+        echo " GAME RUNTIME COMPATIBILITY: UNVERIFIED (game was not run)"
+        echo "----------------------------------------------------------------"
+        echo " Environment Check: ROSETTA_ADVERTISE_AVX=$ROSETTA_ADVERTISE_AVX"
+        echo " Environment Check: WINEMSYNC=$WINEMSYNC"
+        echo " Environment Check: MACOSGAMING_TEST_HARNESS=$MACOSGAMING_TEST_HARNESS"
+        echo " Pipeline Diagnostics: Harness simulation completed successfully."
+        echo "================================================================"
         """
 
         var env = profile.recommendedRuntime.environmentVariables

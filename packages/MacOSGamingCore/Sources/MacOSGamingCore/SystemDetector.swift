@@ -9,7 +9,10 @@ public struct SystemReport: Sendable, Equatable {
     public let gpuName: String
     public let supportsHardwareRayTracing: Bool
     public let osVersion: String
-    public let isSequoiaOrLater: Bool
+    public let osMajorVersion: Int
+    public let osMarketingName: String
+    public let supportsAVX2: Bool
+    public var isSequoiaOrLater: Bool { supportsAVX2 }
     public let isRosettaInstalled: Bool
     public let freeDiskSpaceBytes: UInt64
     public let readinessScore: Int
@@ -30,7 +33,9 @@ public struct SystemReport: Sendable, Equatable {
         gpuName: String,
         supportsHardwareRayTracing: Bool,
         osVersion: String,
-        isSequoiaOrLater: Bool,
+        osMajorVersion: Int,
+        osMarketingName: String,
+        supportsAVX2: Bool,
         isRosettaInstalled: Bool,
         freeDiskSpaceBytes: UInt64,
         readinessScore: Int
@@ -42,15 +47,72 @@ public struct SystemReport: Sendable, Equatable {
         self.gpuName = gpuName
         self.supportsHardwareRayTracing = supportsHardwareRayTracing
         self.osVersion = osVersion
-        self.isSequoiaOrLater = isSequoiaOrLater
+        self.osMajorVersion = osMajorVersion
+        self.osMarketingName = osMarketingName
+        self.supportsAVX2 = supportsAVX2
         self.isRosettaInstalled = isRosettaInstalled
         self.freeDiskSpaceBytes = freeDiskSpaceBytes
         self.readinessScore = readinessScore
+    }
+
+    public init(
+        chipModel: String,
+        isAppleSilicon: Bool,
+        cpuCores: Int,
+        unifiedMemoryBytes: UInt64,
+        gpuName: String,
+        supportsHardwareRayTracing: Bool,
+        osVersion: String,
+        isSequoiaOrLater: Bool,
+        isRosettaInstalled: Bool,
+        freeDiskSpaceBytes: UInt64,
+        readinessScore: Int
+    ) {
+        let parts = osVersion.split(separator: ".").compactMap { Int($0) }
+        let major = parts.first ?? (isSequoiaOrLater ? 15 : 14)
+        self.init(
+            chipModel: chipModel,
+            isAppleSilicon: isAppleSilicon,
+            cpuCores: cpuCores,
+            unifiedMemoryBytes: unifiedMemoryBytes,
+            gpuName: gpuName,
+            supportsHardwareRayTracing: supportsHardwareRayTracing,
+            osVersion: osVersion,
+            osMajorVersion: major,
+            osMarketingName: SystemDetector.osMarketingName(forMajorVersion: major),
+            supportsAVX2: isSequoiaOrLater,
+            isRosettaInstalled: isRosettaInstalled,
+            freeDiskSpaceBytes: freeDiskSpaceBytes,
+            readinessScore: readinessScore
+        )
     }
 }
 
 public struct SystemDetector: Sendable {
     public init() {}
+
+    public static func osMarketingName(forMajorVersion major: Int) -> String {
+        switch major {
+        case 11: return "Big Sur"
+        case 12: return "Monterey"
+        case 13: return "Ventura"
+        case 14: return "Sonoma"
+        case 15: return "Sequoia"
+        case 16...30: return "Tahoe"
+        default:
+            if major >= 16 {
+                return "Tahoe"
+            } else if major == 10 {
+                return "Catalina"
+            } else {
+                return "macOS \(major)"
+            }
+        }
+    }
+
+    public static func validateAVX2Support(majorVersion: Int) -> Bool {
+        majorVersion >= 15
+    }
 
     public func detect() -> SystemReport {
         let chip = Self.detectChipModel()
@@ -64,7 +126,9 @@ public struct SystemDetector: Sendable {
 
         let osVer = ProcessInfo.processInfo.operatingSystemVersion
         let osString = "\(osVer.majorVersion).\(osVer.minorVersion).\(osVer.patchVersion)"
-        let isSequoia = osVer.majorVersion >= 15
+        let major = osVer.majorVersion
+        let supportsAVX2 = Self.validateAVX2Support(majorVersion: major)
+        let marketingName = Self.osMarketingName(forMajorVersion: major)
 
         let rosetta = Self.checkRosettaInstallation()
         let diskSpace = Self.detectFreeDiskSpace()
@@ -72,7 +136,7 @@ public struct SystemDetector: Sendable {
         let score = Self.calculateReadinessScore(
             isAppleSilicon: isAppleSilicon,
             memoryBytes: memory,
-            isSequoia: isSequoia,
+            isSequoia: supportsAVX2,
             rosettaInstalled: rosetta,
             freeDiskBytes: diskSpace
         )
@@ -85,7 +149,9 @@ public struct SystemDetector: Sendable {
             gpuName: gpuName,
             supportsHardwareRayTracing: rayTracing,
             osVersion: osString,
-            isSequoiaOrLater: isSequoia,
+            osMajorVersion: major,
+            osMarketingName: marketingName,
+            supportsAVX2: supportsAVX2,
             isRosettaInstalled: rosetta,
             freeDiskSpaceBytes: diskSpace,
             readinessScore: score
