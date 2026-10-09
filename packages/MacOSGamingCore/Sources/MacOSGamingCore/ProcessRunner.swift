@@ -19,21 +19,56 @@ public final class ThreadSafeBuffer: @unchecked Sendable {
     }
 }
 
+public final class ThreadSafeFlag: @unchecked Sendable {
+    private var flag: Bool
+    private let lock = NSLock()
+
+    public init(_ initial: Bool = false) {
+        self.flag = initial
+    }
+
+    public var value: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return flag
+    }
+
+    public func set(_ val: Bool) {
+        lock.lock()
+        defer { lock.unlock() }
+        flag = val
+    }
+}
+
 public struct ExecutionResult: Sendable, Equatable {
     public let exitCode: Int32
     public let stdoutOutput: String
     public let stderrOutput: String
     public let diagnosticMatches: [DiagnosticMatch]
+    public let wasTerminatedByTimeout: Bool
+    public let wasTerminatedBySignal: Bool
+    public let executionDurationSeconds: Double
 
     public var isSuccess: Bool {
-        exitCode == 0
+        exitCode == 0 && !wasTerminatedByTimeout && !wasTerminatedBySignal
     }
 
-    public init(exitCode: Int32, stdoutOutput: String, stderrOutput: String, diagnosticMatches: [DiagnosticMatch]) {
+    public init(
+        exitCode: Int32,
+        stdoutOutput: String,
+        stderrOutput: String,
+        diagnosticMatches: [DiagnosticMatch],
+        wasTerminatedByTimeout: Bool = false,
+        wasTerminatedBySignal: Bool = false,
+        executionDurationSeconds: Double = 0.0
+    ) {
         self.exitCode = exitCode
         self.stdoutOutput = stdoutOutput
         self.stderrOutput = stderrOutput
         self.diagnosticMatches = diagnosticMatches
+        self.wasTerminatedByTimeout = wasTerminatedByTimeout
+        self.wasTerminatedBySignal = wasTerminatedBySignal
+        self.executionDurationSeconds = executionDurationSeconds
     }
 }
 
@@ -45,6 +80,8 @@ public struct ProcessRunner: Sendable {
         arguments: [String] = [],
         environment: [String: String] = [:],
         workingDirectory: URL? = nil,
+        timeoutSeconds: Double? = nil,
+        enableSignalHandling: Bool = false,
         onOutput: (@Sendable (String) -> Void)? = nil
     ) throws -> ExecutionResult {
         let process = Process()
@@ -87,24 +124,120 @@ public struct ProcessRunner: Sendable {
             }
         }
 
+        let timedOutFlag = ThreadSafeFlag(false)
+        let signaledFlag = ThreadSafeFlag(false)
+        let startTime = Date()
+
+        // 1. Optional Signal Handling for graceful shutdown (SIGINT / SIGTERM)
+        var sigintSource: DispatchSourceSignal?
+        var sigtermSource: DispatchSourceSignal?
+
+        if enableSignalHandling {
+            signal(SIGINT, SIG_IGN)
+            signal(SIGTERM, SIG_IGN)
+
+            let intSrc = DispatchSource.makeSignalSource(signal: SIGINT, queue: DispatchQueue.global(qos: .userInitiated))
+            intSrc.setEventHandler {
+                signaledFlag.set(true)
+                onOutput?("\n[ProcessRunner] Received SIGINT (Ctrl+C). Terminating process gracefully...\n")
+                process.terminate()
+                DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
+                    if process.isRunning {
+                        kill(process.processIdentifier, SIGKILL)
+                    }
+                }
+            }
+            intSrc.resume()
+            sigintSource = intSrc
+
+            let termSrc = DispatchSource.makeSignalSource(signal: SIGTERM, queue: DispatchQueue.global(qos: .userInitiated))
+            termSrc.setEventHandler {
+                signaledFlag.set(true)
+                onOutput?("\n[ProcessRunner] Received SIGTERM. Terminating process gracefully...\n")
+                process.terminate()
+                DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
+                    if process.isRunning {
+                        kill(process.processIdentifier, SIGKILL)
+                    }
+                }
+            }
+            termSrc.resume()
+            sigtermSource = termSrc
+        }
+
+        // 2. Optional Timeout Watchdog
+        var timeoutTimer: DispatchSourceTimer?
+        if let timeout = timeoutSeconds, timeout > 0 {
+            let timer = DispatchSource.makeTimerSource(queue: DispatchQueue.global(qos: .userInitiated))
+            timer.schedule(deadline: .now() + timeout)
+            timer.setEventHandler {
+                timedOutFlag.set(true)
+                onOutput?("\n[ProcessRunner] Execution timed out after \(timeout) seconds. Sending termination signal...\n")
+                process.terminate()
+                DispatchQueue.global().asyncAfter(deadline: .now() + 1.5) {
+                    if process.isRunning {
+                        kill(process.processIdentifier, SIGKILL)
+                    }
+                }
+            }
+            timer.resume()
+            timeoutTimer = timer
+        }
+
         try process.run()
         process.waitUntilExit()
+
+        timeoutTimer?.cancel()
+        if enableSignalHandling {
+            sigintSource?.cancel()
+            sigtermSource?.cancel()
+            signal(SIGINT, SIG_DFL)
+            signal(SIGTERM, SIG_DFL)
+        }
 
         stdoutPipe.fileHandleForReading.readabilityHandler = nil
         stderrPipe.fileHandleForReading.readabilityHandler = nil
 
+        let executionDuration = Date().timeIntervalSince(startTime)
         let stdoutStr = stdoutBuffer.stringValue()
         let stderrStr = stderrBuffer.stringValue()
         let combined = stdoutStr + "\n" + stderrStr
 
         let classifier = DiagnosticClassifier()
-        let matches = classifier.analyze(log: combined)
+        var matches = classifier.analyze(log: combined)
+
+        if timedOutFlag.value {
+            matches.append(
+                DiagnosticMatch(
+                    category: .generalError,
+                    severity: .warning,
+                    matchedPattern: "Process Timeout",
+                    explanation: "Process exceeded the timeout limit of \(timeoutSeconds ?? 0)s and was terminated.",
+                    recommendation: "Check for deadlocks or increase timeout if the game requires longer initial loading."
+                )
+            )
+        }
+
+        if signaledFlag.value {
+            matches.append(
+                DiagnosticMatch(
+                    category: .generalError,
+                    severity: .info,
+                    matchedPattern: "SIGINT/SIGTERM Interruption",
+                    explanation: "Process terminated cleanly upon receiving an external interruption signal (SIGINT/SIGTERM).",
+                    recommendation: "Normal user or system cancellation."
+                )
+            )
+        }
 
         return ExecutionResult(
             exitCode: process.terminationStatus,
             stdoutOutput: stdoutStr,
             stderrOutput: stderrStr,
-            diagnosticMatches: matches
+            diagnosticMatches: matches,
+            wasTerminatedByTimeout: timedOutFlag.value,
+            wasTerminatedBySignal: signaledFlag.value,
+            executionDurationSeconds: executionDuration
         )
     }
 

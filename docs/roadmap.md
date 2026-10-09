@@ -69,19 +69,24 @@ The engineering roadmap is organized into five structured phases to ensure stabi
 
 ---
 
-## Phase 3: Native macOS SwiftUI Desktop Application
-- [ ] Build clean, modern macOS desktop app using SwiftUI 6:
-  - Modern `NavigationSplitView` architecture.
-  - Native dark-mode and glassmorphic materials (`.ultraThinMaterial`).
-  - System specs and compatibility readiness score dashboard.
-  - Library view with game artwork and status badges (`Native`, `Compatible`, `Blocked Anti-Cheat`).
-- [ ] Game detail inspector:
-  - Graphics backend switcher (DXMT vs D3DMetal vs DXVK).
-  - Environment variable editor.
-  - Offline mode toggles for games with separable anti-cheat (e.g. GTA V Story Mode).
-- [ ] Live Diagnostic Console:
-  - Embedded terminal log viewer with syntax highlighting and auto-scroll.
-  - One-click copy and anonymized diagnostic report export.
+## Phase 3: Real-Game Validation, Launcher Hardening & SwiftUI Preparation (Completed)
+- [x] Real-Game Validation Protocol & Telemetry:
+  - Documented technical validation protocol in `docs/validation/procedure.md` for native macOS, indie DX11 (DXMT), and offline-safe AAA titles.
+  - Implemented `GameValidator` and CLI command `macosgaming validate <game-id> [--path <path>] [--timeout <sec>] [--retry] [--dry-run] [--output <path>]`.
+  - Automated performance telemetry: startup initialization time, total execution duration, and estimated/measured framerate.
+  - Strict privacy sanitization: automated stripping of absolute home paths (`/Users/...`), personal usernames, and storage volume identifiers.
+  - Generated reference report: `docs/validation/dota-2-report.md`.
+- [x] Launcher Hardening (Signals, Timeouts & Automated Fallback):
+  - POSIX signal handling: Graceful shutdown upon `SIGINT` / `SIGTERM` preventing prefix registry corruption.
+  - Configurable execution watchdog timer (`timeoutSeconds`) to terminate hanging processes.
+  - Automated fallback retry (`autoRetryWithAlternativeConfig`): automatically switches graphics overrides (DXMT -> Wine/DXVK builtin), disables msync, injects AVX flags, and appends fallback parameters upon primary failure.
+- [x] SwiftUI Desktop Application Preparation:
+  - Designed full desktop layout and wireframes in `docs/ui-mockup.md`: Dashboard, Library, Launcher Inspector, Diagnostics, and Settings.
+  - Formally specified `@Observable` ViewModels (`AppViewModel`, `DashboardViewModel`, `LibraryViewModel`, `LaunchViewModel`, `DiagnosticsViewModel`, `SettingsViewModel`) bound reactively to `MacOSGamingCore`.
+- [x] Comprehensive Unit Testing:
+  - `GameValidatorTests`: validation execution, privacy sanitization verification, and AntiCheat Sentinel enforcement.
+  - `ProcessRunnerSignalTests`: timeout watchdog enforcement, clean signal handling, and normal termination.
+  - `GameLauncherRetryTests`: automated fallback retry execution and failure reporting.
 
 ---
 

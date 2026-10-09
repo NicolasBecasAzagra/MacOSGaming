@@ -58,9 +58,10 @@ final class GameLauncherTests: XCTestCase {
         let result = launcher.launch(configuration: config)
 
         switch result {
-        case .launched(let profile, let execResult, let prefix):
+        case .launched(let profile, let execResult, let prefix, let retried, _):
             XCTAssertEqual(profile.id, "elden-ring")
             XCTAssertEqual(execResult.exitCode, 0)
+            XCTAssertFalse(retried)
             XCTAssertTrue(execResult.stdoutOutput.contains("DRY-RUN SIMULATION"))
             XCTAssertTrue(FileManager.default.fileExists(atPath: prefix.path), "Prefix directory should be created")
         default:
@@ -100,7 +101,7 @@ final class GameLauncherTests: XCTestCase {
         let result = launcher.launch(configuration: config)
 
         switch result {
-        case .launched(let profile, let execResult, let prefix):
+        case .launched(let profile, let execResult, let prefix, _, _):
             XCTAssertEqual(profile.id, "dota-2")
             XCTAssertEqual(execResult.exitCode, 0, "Execution of test binary should succeed with code 0")
             XCTAssertTrue(execResult.stdoutOutput.contains("MOCK LEGAL GAME ENGINE STARTED"))
