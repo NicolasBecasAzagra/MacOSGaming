@@ -1,0 +1,105 @@
+name: Bug Report
+description: Report a bug, crash, or unexpected behavior in MacOSGaming (CLI or App)
+title: "[BUG]: <Short Description>"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting an issue! Please provide as much detail as possible to help us triage and fix the defect.
+
+  - type: input
+    id: mac_model
+    attributes:
+      label: Mac Hardware & Model
+      description: Exact model of your Mac.
+      placeholder: "e.g., MacBook Pro 16\" (Nov 2023), Mac Studio (2022), MacBook Air 13\" (M2)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mac_chip
+    attributes:
+      label: Apple Silicon Processor
+      description: Processor architecture.
+      options:
+        - "M1"
+        - "M1 Pro"
+        - "M1 Max"
+        - "M1 Ultra"
+        - "M2"
+        - "M2 Pro"
+        - "M2 Max"
+        - "M2 Ultra"
+        - "M3"
+        - "M3 Pro"
+        - "M3 Max"
+        - "M4"
+        - "M4 Pro"
+        - "M4 Max"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: macos_version
+    attributes:
+      label: macOS Version
+      description: Operating system version.
+      options:
+        - "macOS 15 Sequoia (15.0+)"
+        - "macOS 14 Sonoma (14.0+)"
+        - "macOS 13 Ventura (13.0+)"
+        - "macOS Beta / Developer Seed"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Affected Component
+      options:
+        - "MacOSGamingApp (Native SwiftUI User Interface)"
+        - "MacOSGaming CLI (`macosgaming` command line tool)"
+        - "MacOSGamingCore (ProcessRunner / PrefixManager / Signal Handling)"
+        - "Steam Detection / ACF Parsing"
+        - "Anti-Cheat Sentinel Gate"
+        - "Diagnostic Classifier"
+    validations:
+      required: true
+
+  - type: textarea
+    id: bug_description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the error is.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction_steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can maintainers reproduce the issue?
+      placeholder: |
+        1. Run `macosgaming doctor`
+        2. Attempt to launch `...`
+        3. Observe crash or error code
+    validations:
+      required: true
+
+  - type: textarea
+    id: diagnostic_logs
+    attributes:
+      label: Diagnostic Logs & Stack Trace
+      description: Output from `macosgaming doctor`, terminal logs, or crash trace. (Sanitize private data before pasting).
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: Expected Behavior
+      description: What should have happened instead?
+    validations:
+      required: true

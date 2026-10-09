@@ -39,14 +39,14 @@ public struct LauncherView: View {
                     Spacer()
 
                     // Quick game selector picker
-                    Picker("Juego", selection: $viewModel.selectedGameId) {
+                    Picker("Game", selection: $viewModel.selectedGameId) {
                         Text("Dota 2").tag("dota-2")
                         Text("Elden Ring").tag("elden-ring")
                         Text("Grand Theft Auto V").tag("gta-v")
                         Text("Counter-Strike 2").tag("cs2")
                         Text("Rocket League").tag("rocket-league")
-                        Text("Valorant (Bloqueado)").tag("valorant")
-                        Text("Fortnite (Bloqueado)").tag("fortnite")
+                        Text("Valorant (Blocked)").tag("valorant")
+                        Text("Fortnite (Blocked)").tag("fortnite")
                     }
                     .frame(width: 200)
                     .onChange(of: viewModel.selectedGameId) { _, newId in
@@ -64,18 +64,18 @@ public struct LauncherView: View {
                             Image(systemName: "shield.slash.fill")
                                 .font(.title3)
                                 .foregroundColor(.red)
-                            Text("EJECUCIÓN BLOQUEADA POR ANTI-CHEAT SENTINEL")
+                            Text("EXECUTION BLOCKED BY ANTI-CHEAT SENTINEL")
                                 .font(.system(size: 13, weight: .bold))
                                 .foregroundColor(.red)
                         }
 
                         Text(viewModel.blockReason.isEmpty
-                             ? "Este juego requiere un anti-cheat a nivel de kernel (Ring-0) incompatible con el kernel XNU de macOS. MacOSGaming bloquea estrictamente su ejecución local."
+                             ? "This title mandates a kernel-level (Ring-0) anti-cheat driver incompatible with the macOS XNU kernel. MacOSGaming strictly blocks local execution."
                              : viewModel.blockReason)
                             .font(.callout)
 
                         if !viewModel.alternatives.isEmpty {
-                            Text("Alternativas legales y técnicas:")
+                            Text("Legal and technical alternatives:")
                                 .font(.caption.bold())
                                 .foregroundColor(.secondary)
                             ForEach(viewModel.alternatives, id: \.self) { alt in
@@ -100,24 +100,24 @@ public struct LauncherView: View {
 
                 // Configuration Panel
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("PARÁMETROS DE LANZAMIENTO")
+                    Text("LAUNCH PARAMETERS")
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(.secondary)
 
                     Grid(alignment: .leading, horizontalSpacing: 20, verticalSpacing: 10) {
                         GridRow {
-                            Toggle("Modo Dry-Run (Simulación)", isOn: $viewModel.isDryRun)
-                                .help("Valida la configuración de sandbox y variables de entorno sin invocar el binario.")
-                            Toggle("Reintento Automático en Fallo", isOn: $viewModel.autoRetry)
-                                .help("Si la ejecución inicial falla, reintenta con configuración alternativa segura.")
+                            Toggle("Dry-Run Mode (Simulation)", isOn: $viewModel.isDryRun)
+                                .help("Validates sandbox provisioning and environment variables without executing the game binary.")
+                            Toggle("Auto-Retry on Failure", isOn: $viewModel.autoRetry)
+                                .help("If initial execution fails, retries with fallback configuration.")
                         }
 
                         GridRow {
-                            Toggle("Consentimiento Modo Offline", isOn: $viewModel.offlineConsent)
-                                .help("Requerido para juegos con anti-cheat multijugador que admiten campaña offline (ej. GTA V).")
+                            Toggle("Offline Mode Consent", isOn: $viewModel.offlineConsent)
+                                .help("Required for games with multiplayer anti-cheat that officially permit offline campaign mode (e.g., GTA V).")
 
                             HStack {
-                                Text("Límite Timeout:")
+                                Text("Timeout Limit:")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                                 Slider(value: Binding(
@@ -132,10 +132,10 @@ public struct LauncherView: View {
                     }
 
                     HStack {
-                        Text("Ruta ejecutable personalizada:")
+                        Text("Custom executable path:")
                             .font(.caption)
                             .foregroundColor(.secondary)
-                        TextField("Dejar vacío para auto-detectar en Steam...", text: $viewModel.customPath)
+                        TextField("Leave empty to auto-detect from Steam...", text: $viewModel.customPath)
                             .textFieldStyle(.roundedBorder)
                     }
                 }
@@ -153,7 +153,7 @@ public struct LauncherView: View {
                             } else {
                                 Image(systemName: "play.fill")
                             }
-                            Text(viewModel.isLaunching ? "Ejecutando..." : "Lanzar Juego")
+                            Text(viewModel.isLaunching ? "Launching..." : "Launch Game")
                                 .fontWeight(.semibold)
                         }
                         .frame(minWidth: 140, minHeight: 28)
@@ -166,7 +166,7 @@ public struct LauncherView: View {
                         Button(action: { viewModel.cancel() }) {
                             HStack {
                                 Image(systemName: "stop.fill")
-                                Text("Cancelar / Detener")
+                                Text("Cancel / Stop")
                                     .fontWeight(.semibold)
                             }
                             .frame(minWidth: 120, minHeight: 28)
@@ -179,7 +179,7 @@ public struct LauncherView: View {
 
                     if let code = viewModel.exitCode {
                         HStack(spacing: 6) {
-                            Text("Código de salida:")
+                            Text("Exit code:")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                             Text("\(code)")
@@ -195,13 +195,13 @@ public struct LauncherView: View {
 
                 // Real-time Console Log Streaming
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("REGISTROS DE EJECUCIÓN (STREAMING EN TIEMPO REAL)")
+                    Text("EXECUTION LOGS (LIVE STREAMING)")
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(.secondary)
 
                     TerminalConsoleView(
                         text: viewModel.logs,
-                        placeholder: "Haz clic en 'Lanzar Juego' para iniciar el proceso y visualizar los logs en tiempo real."
+                        placeholder: "Click 'Launch Game' to start the process and stream real-time logs."
                     )
                 }
             }

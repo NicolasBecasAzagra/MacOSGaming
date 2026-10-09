@@ -14,21 +14,21 @@ public struct SettingsView: View {
                 // Header
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Ajustes y Configuración")
+                        Text("Settings & Configuration")
                             .font(.system(size: 24, weight: .bold))
-                        Text("Gestión de dependencias, rutas de biblioteca y preferencias de privacidad")
+                        Text("Manage runtimes, library paths, and privacy preferences")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
                     Spacer()
                     Button(action: { viewModel.loadSettings() }) {
-                        Label("Refrescar", systemImage: "arrow.clockwise")
+                        Label("Refresh", systemImage: "arrow.clockwise")
                     }
                 }
 
                 // Section 1: Dependencies & Runtimes
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("ESTADO DE RUNTIMES Y DEPENDENCIAS EXTERNAS")
+                    Text("EXTERNAL RUNTIMES & DEPENDENCY STATUS")
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(.secondary)
 
@@ -49,7 +49,7 @@ public struct SettingsView: View {
                                     }
 
                                     if let path = dep.installedPath {
-                                        Text("Ruta: \(path)")
+                                        Text("Path: \(path)")
                                             .font(.caption.monospaced())
                                             .foregroundColor(.secondary)
                                     } else {
@@ -65,7 +65,7 @@ public struct SettingsView: View {
                                 Link(destination: URL(string: dep.officialSourceURL) ?? URL(fileURLWithPath: "/")) {
                                     Image(systemName: "arrow.up.right.square")
                                 }
-                                .help("Abrir repositorio o fuente oficial")
+                                .help("Open official repository or documentation")
                             }
                             .padding(10)
                             .background(Color(NSColor.controlBackgroundColor).opacity(0.4))
@@ -79,22 +79,22 @@ public struct SettingsView: View {
 
                 // Section 2: Library Paths
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("RUTAS DEL SISTEMA Y ALMACENAMIENTO")
+                    Text("SYSTEM PATHS & STORAGE")
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(.secondary)
 
                     VStack(spacing: 12) {
                         PathRow(
-                            title: "Biblioteca de Steam:",
-                            description: "Directorio raíz para escanear juegos y manifiestos ACF",
+                            title: "Steam Library:",
+                            description: "Root directory to scan for installed Steam games and ACF manifests",
                             path: viewModel.steamRootPath
                         )
 
                         Divider()
 
                         PathRow(
-                            title: "Directorio de Runtimes:",
-                            description: "Almacenamiento de Wine-CX, DXMT y DXVK descargados",
+                            title: "Runtimes Directory:",
+                            description: "Storage location for installed Wine-CX, DXMT, and DXVK runtimes",
                             path: viewModel.runtimesPath
                         )
                     }
@@ -105,16 +105,16 @@ public struct SettingsView: View {
 
                 // Section 3: Privacy & Telemetry
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("PRIVACIDAD Y TELEMETRÍA")
+                    Text("PRIVACY & TELEMETRY")
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(.secondary)
 
                     VStack(alignment: .leading, spacing: 12) {
                         Toggle(isOn: $viewModel.telemetryEnabled) {
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("Recopilación anónima de telemetría de rendimiento")
+                                Text("Anonymous Performance Telemetry Collection")
                                     .fontWeight(.medium)
-                                Text("Por defecto DESACTIVADA (OFF). Si se activa, solo envía benchmarks agregados sin identificadores personales ni rutas.")
+                                Text("Disabled by default (OFF). If enabled, only sends aggregated benchmark statistics without personal identifiers or paths.")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
@@ -125,7 +125,7 @@ public struct SettingsView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "lock.shield.fill")
                                 .foregroundColor(.green)
-                            Text("Política Zero-Leakage: MacOSGaming sanitiza automáticamente todas las rutas (/Users/... -> ~) y nombres de usuario locales en cada reporte generado.")
+                            Text("Zero-Leakage Policy: MacOSGaming automatically sanitizes all user paths (/Users/... -> ~) and local account names from every benchmark report.")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }

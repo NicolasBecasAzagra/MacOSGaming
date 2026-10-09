@@ -1,5 +1,4 @@
 # Legal Policies, Ethics & Compliance Guidelines
-# Políticas Legales, Ética y Guías de Cumplimiento — MacOSGaming
 
 **Project:** MacOSGaming  
 **Date:** October 2026  
@@ -51,7 +50,7 @@ To protect the integrity of the project, users, and contributors, the following 
    - MacOSGaming **does not distribute, download, or recommend D3DMetal as a general end-user gaming solution**.  
    - The default, supported, and recommended path is 100% open source: **Wine-CX with DXMT (Direct3D 11 to Metal) and DXVK-macOS**.  
    - For commercial users seeking supported commercial translation, **CodeWeavers CrossOver** (operating under its own independent commercial licensing and upstream Wine contributions) is the recommended third-party alternative.  
-   - D3DMetal is treated exclusively as an **"opción avanzada bajo tu propia responsabilidad y licencia"** (advanced developer option strictly under the user's own legal responsibility and evaluation license).
+   - D3DMetal is treated exclusively as an **advanced developer option strictly under the user's own legal responsibility and evaluation license**.
 3. **Download Availability & Account Clarification:**  
    - Anyone with a standard Apple ID can access developer downloads on [developer.apple.com](https://developer.apple.com) without requiring a paid Apple Developer Program subscription.  
    - However, downloading GPTK legally binds the individual to Apple's Evaluation License Agreement. MacOSGaming never automates this download and only provides path detection if a developer has already mounted their evaluation DMG locally.

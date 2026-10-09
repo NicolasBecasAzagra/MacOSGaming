@@ -16,15 +16,15 @@ public struct DashboardView: View {
                 // Header
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Panel de Control del Sistema")
+                        Text("System Control Dashboard")
                             .font(.system(size: 24, weight: .bold))
-                        Text("Diagnóstico de hardware y preparación para gaming en Apple Silicon")
+                        Text("Hardware telemetry and gaming readiness evaluation on Apple Silicon")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
                     Spacer()
                     Button(action: { viewModel.refreshDashboard() }) {
-                        Label("Actualizar", systemImage: "arrow.clockwise")
+                        Label("Refresh", systemImage: "arrow.clockwise")
                     }
                 }
 
@@ -34,33 +34,33 @@ public struct DashboardView: View {
                         ReadinessGaugeView(score: report.readinessScore)
 
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("ESPECIFICACIONES DE HARDWARE")
+                            Text("HARDWARE SPECIFICATIONS")
                                 .font(.system(size: 11, weight: .bold))
                                 .foregroundColor(.secondary)
 
                             Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 8) {
                                 GridRow {
-                                    Text("Procesador:")
+                                    Text("Processor:")
                                         .foregroundColor(.secondary)
-                                    Text("\(report.chipModel) (\(report.cpuCores) núcleos CPU)")
+                                    Text("\(report.chipModel) (\(report.cpuCores) CPU cores)")
                                         .fontWeight(.medium)
                                 }
                                 GridRow {
-                                    Text("Memoria Unificada:")
+                                    Text("Unified Memory:")
                                         .foregroundColor(.secondary)
                                     Text(String(format: "%.1f GB RAM", report.unifiedMemoryGB))
                                         .fontWeight(.medium)
                                 }
                                 GridRow {
-                                    Text("GPU Metal:")
+                                    Text("Metal GPU:")
                                         .foregroundColor(.secondary)
                                     Text(report.gpuName)
                                         .fontWeight(.medium)
                                 }
                                 GridRow {
-                                    Text("Ray Tracing Hardware:")
+                                    Text("Hardware Ray Tracing:")
                                         .foregroundColor(.secondary)
-                                    Text(report.supportsHardwareRayTracing ? "Compatible (M3/M4+)" : "No compatible (M1/M2 o emulado)")
+                                    Text(report.supportsHardwareRayTracing ? "Supported (M3/M4+)" : "Unsupported (M1/M2)")
                                         .fontWeight(.medium)
                                 }
                             }
@@ -73,13 +73,13 @@ public struct DashboardView: View {
 
                     // Software & Subsystems row
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("SUBSISTEMAS Y COMPATIBILIDAD")
+                        Text("SUBSYSTEMS & COMPATIBILITY")
                             .font(.system(size: 11, weight: .bold))
                             .foregroundColor(.secondary)
 
                         HStack(spacing: 12) {
                             StatusCard(
-                                title: "Sistema Operativo",
+                                title: "Operating System",
                                 value: "macOS \(report.osMarketingName) \(report.osVersion)",
                                 icon: "desktopcomputer",
                                 isPositive: report.osMajorVersion >= 14
@@ -87,21 +87,21 @@ public struct DashboardView: View {
 
                             StatusCard(
                                 title: "Rosetta 2",
-                                value: report.isRosettaInstalled ? "Instalado y Activo" : "No detectado",
+                                value: report.isRosettaInstalled ? "Installed & Active" : "Not Detected",
                                 icon: "bolt.fill",
                                 isPositive: report.isRosettaInstalled
                             )
 
                             StatusCard(
-                                title: "Soporte AVX2",
-                                value: report.supportsAVX2 ? "Habilitado (macOS 15+)" : "Requiere macOS 15+",
+                                title: "AVX2 Support",
+                                value: report.supportsAVX2 ? "Enabled (macOS 15+)" : "Requires macOS 15+",
                                 icon: "cpu",
                                 isPositive: report.supportsAVX2
                             )
 
                             StatusCard(
-                                title: "Juegos en Steam",
-                                value: "\(viewModel.installedSteamGamesCount) instalados",
+                                title: "Steam Games",
+                                value: "\(viewModel.installedSteamGamesCount) installed",
                                 icon: "gamecontroller.fill",
                                 isPositive: viewModel.installedSteamGamesCount > 0
                             )
@@ -113,7 +113,7 @@ public struct DashboardView: View {
                         HStack(spacing: 10) {
                             Image(systemName: "exclamationmark.triangle.fill")
                                 .foregroundColor(.orange)
-                            Text("Rosetta 2 no está instalado. Para ejecutar juegos de Windows x86_64, ejecuta en terminal: softwareupdate --install-rosetta")
+                            Text("Rosetta 2 is not installed. To execute x86_64 Windows games, run in terminal: softwareupdate --install-rosetta")
                                 .font(.callout)
                         }
                         .padding()
@@ -125,7 +125,7 @@ public struct DashboardView: View {
                         HStack(spacing: 10) {
                             Image(systemName: "info.circle.fill")
                                 .foregroundColor(.blue)
-                            Text("Para juegos modernos con instrucciones AVX/AVX2, se requiere actualizar a macOS 15.0 Sequoia o posterior.")
+                            Text("For modern games requiring AVX/AVX2 vector instructions, updating to macOS 15.0 Sequoia or later is recommended.")
                                 .font(.callout)
                         }
                         .padding()
@@ -135,12 +135,12 @@ public struct DashboardView: View {
 
                     // Quick access shortcuts
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("ACCESOS RÁPIDOS")
+                        Text("QUICK SHORTCUTS")
                             .font(.system(size: 11, weight: .bold))
                             .foregroundColor(.secondary)
 
                         HStack(spacing: 12) {
-                            QuickLaunchButton(title: "Dota 2 (Nativo)", gameId: "dota-2", onNavigate: onNavigateToGame)
+                            QuickLaunchButton(title: "Dota 2 (Native)", gameId: "dota-2", onNavigate: onNavigateToGame)
                             QuickLaunchButton(title: "Elden Ring (DXMT)", gameId: "elden-ring", onNavigate: onNavigateToGame)
                             QuickLaunchButton(title: "Grand Theft Auto V", gameId: "gta-v", onNavigate: onNavigateToGame)
                         }

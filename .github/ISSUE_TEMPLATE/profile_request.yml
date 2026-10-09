@@ -1,0 +1,109 @@
+name: Game Profile Request
+description: Request the addition or update of a game compatibility profile in data/profiles/
+title: "[PROFILE REQUEST]: <Game Title>"
+labels: ["game-profile", "community-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to request a new verified profile in `data/profiles/`.
+        All profiles follow the JSON schema specified in `data/profiles/schema.json`.
+
+  - type: input
+    id: game_name
+    attributes:
+      label: Game Title
+      description: The official name of the game.
+      placeholder: "e.g., Baldur's Gate 3, Monster Hunter: World"
+    validations:
+      required: true
+
+  - type: input
+    id: game_id
+    attributes:
+      label: Proposed Game ID (kebab-case)
+      description: Identifier used for the filename in `data/profiles/<id>.json`.
+      placeholder: "e.g., baldurs-gate-3"
+    validations:
+      required: true
+
+  - type: input
+    id: steam_app_id
+    attributes:
+      label: Steam App ID
+      description: Numeric Steam ID if available on Steam.
+      placeholder: "e.g., 1086940"
+    validations:
+      required: false
+
+  - type: input
+    id: publisher
+    attributes:
+      label: Developer & Publisher
+      placeholder: "e.g., Larian Studios"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: proposed_status
+    attributes:
+      label: Proposed Compatibility Status
+      description: Based on your preliminary tests or technical architecture.
+      options:
+        - "native_macos (Native ARM64/Universal macOS binary available)"
+        - "likely_compatible (Runs via Wine + DXMT / DXVK / Metal)"
+        - "requires_windows (Requires Windows virtualization / Cloud)"
+        - "not_supported (Unplayable due to graphics engine or kernel anti-cheat)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: anti_cheat_system
+    attributes:
+      label: Anti-Cheat Mechanism
+      description: Does the game utilize an anti-cheat engine?
+      options:
+        - "None / Offline Single-player"
+        - "Valve Anti-Cheat (VAC) - Userspace"
+        - "Easy Anti-Cheat (EAC) - Userspace / Server"
+        - "Easy Anti-Cheat (EAC) - Kernel Ring-0 Driver"
+        - "BattlEye - Userspace / Server"
+        - "BattlEye - Kernel Ring-0 Driver"
+        - "Riot Vanguard - Kernel Ring-0 Driver (Hard Block)"
+        - "Denuvo Anti-Tamper / Anti-Cheat"
+        - "Other Proprietary / Unknown"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: offline_mode_allowed
+    attributes:
+      label: Offline Mode Single-Player Allowed?
+      description: Can the game run in single-player or campaign mode without initializing anti-cheat?
+      options:
+        - "Yes (Safe to launch offline)"
+        - "No (Strictly online-only login required)"
+        - "N/A (No anti-cheat installed)"
+        - "Unknown / Untested"
+    validations:
+      required: true
+
+  - type: textarea
+    id: technical_sources
+    attributes:
+      label: Technical Sources & Verification URLs
+      description: Provide links to official store pages, developer announcements, or compatibility databases (Apple Gaming Wiki, ProtonDB).
+      placeholder: |
+        - https://store.steampowered.com/app/...
+        - https://www.applegamingwiki.com/wiki/...
+    validations:
+      required: true
+
+  - type: textarea
+    id: recommended_runtime
+    attributes:
+      label: Recommended Graphics Runtime & Environment
+      description: Specify DXMT/DXVK flags, Wine settings, or environment variables if known.
+      placeholder: "e.g., DXMT_CONFIG=... WINEMSYNC=1"
+    validations:
+      required: false

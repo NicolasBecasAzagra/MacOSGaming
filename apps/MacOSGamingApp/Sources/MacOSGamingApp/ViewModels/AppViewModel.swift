@@ -6,10 +6,10 @@ import Observation
 public final class AppViewModel {
     public enum NavigationTab: String, CaseIterable, Identifiable {
         case dashboard = "Dashboard"
-        case library = "Biblioteca"
-        case launcher = "Lanzador"
-        case diagnostics = "Diagnósticos"
-        case settings = "Ajustes"
+        case library = "Library"
+        case launcher = "Launcher"
+        case diagnostics = "Diagnostics"
+        case settings = "Settings"
 
         public var id: String { rawValue }
 
