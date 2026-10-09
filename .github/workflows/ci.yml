@@ -153,10 +153,10 @@ jobs:
           fi
           xcode-select -p
 
-      - name: Build MacOSGamingApp Target (Debug & Release)
+      - name: Build MacOSGamingApp (Debug & Release)
         run: |
-          swift build --target MacOSGamingApp -v
-          swift build --target MacOSGamingApp -c release -v
+          swift build --product MacOSGamingApp -v
+          swift build --product MacOSGamingApp -c release -v
 
       - name: Run SwiftUI App ViewModel Unit Tests
         run: |
