@@ -52,12 +52,38 @@
 
 ## ⚡ Quick Start
 
-### 1. Prerequisites
+### 1. Download Pre-built Release (Recommended)
+You can directly download pre-compiled Apple Silicon binaries without compiling from source:
+
+#### 📱 Native Desktop App (GUI)
+Download the `.app` bundle, extract, and launch (supports double-click launch and macOS Dock integration):
+```bash
+# Download, extract, and open MacOSGamingApp:
+curl -L -O https://github.com/NicolasBecasAzagra/MacOSGaming/releases/latest/download/MacOSGamingApp-v0.1.1-macos-arm64.zip
+unzip MacOSGamingApp-v0.1.1-macos-arm64.zip
+open MacOSGamingApp.app
+```
+
+#### 💻 Standalone CLI Tool (`macosgaming`)
+Download the standalone command-line executable for terminal workflows and automated scripting:
+```bash
+# Download, extract, and run macosgaming doctor:
+curl -L -O https://github.com/NicolasBecasAzagra/MacOSGaming/releases/latest/download/macosgaming-v0.1.1-macos-arm64.tar.gz
+tar -xzvf macosgaming-v0.1.1-macos-arm64.tar.gz
+chmod +x macosgaming
+./macosgaming doctor
+```
+
+---
+
+### 2. Build & Run from Source (Developers)
+
+#### Prerequisites
 - Mac with Apple Silicon processor (M1, M2, M3, M4 or Pro/Max/Ultra variants).
 - macOS Sonoma (14.0+) or macOS Sequoia (15.0+ recommended).
 - Xcode 15+ or Command Line Tools installed (`xcode-select --install`).
 
-### 2. Installation & Build
+#### Clone & Build
 ```bash
 # Clone the repository
 git clone https://github.com/NicolasBecasAzagra/MacOSGaming.git
@@ -67,17 +93,17 @@ cd MacOSGaming
 swift build -c release
 ```
 
-### 3. Launch Native SwiftUI Desktop App
+#### Run Native Desktop App from Source
 ```bash
-# Run the application directly from Swift Package Manager:
+# Run the application directly with Swift Package Manager:
 swift run MacOSGamingApp
 
-# Or execute the optimized production binary:
+# Or launch the optimized production binary:
 swift build --product MacOSGamingApp -c release
 ./.build/release/MacOSGamingApp
 ```
 
-### 4. Use the CLI Tool (`macosgaming`)
+#### Run CLI Tool from Source
 ```bash
 # Inspect system hardware and calculate Gaming Readiness Score:
 swift run macosgaming doctor

@@ -169,6 +169,16 @@ jobs:
           test -x "$BIN_DIR/MacOSGamingApp"
           echo "MacOSGamingApp binary successfully verified at $BIN_DIR/MacOSGamingApp."
 
+      - name: Verify App Bundle Packaging (.app / Info.plist)
+        run: |
+          chmod +x scripts/package_app.sh scripts/verify_app_bundle.sh
+          BIN_DIR=$(swift build -c release --show-bin-path)
+          ./scripts/package_app.sh 0.1.1 dist-ci "$BIN_DIR"
+          ./scripts/verify_app_bundle.sh dist-ci/MacOSGamingApp.app
+          test -f dist-ci/MacOSGamingApp-v0.1.1-macos-arm64.zip
+          echo "macOS .app bundle packaging and structure successfully verified in CI."
+          rm -rf dist-ci
+
   validate-compatibility-matrix:
     name: Validate Compatibility Matrix & Generator
     runs-on: macos-14

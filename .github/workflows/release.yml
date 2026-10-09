@@ -37,29 +37,78 @@ jobs:
       - name: Package Release Assets
         run: |
           TAG_NAME="${GITHUB_REF_NAME}"
+          VERSION="${TAG_NAME#v}"
           BIN_DIR=$(swift build -c release --show-bin-path)
           echo "Binary Directory: ${BIN_DIR}"
           
           mkdir -p dist
           
-          # Package CLI binary
+          # 1. Package CLI binary tarball
           tar -czvf "dist/macosgaming-${TAG_NAME}-macos-arm64.tar.gz" -C "${BIN_DIR}" macosgaming
           
-          # Package SwiftUI App binary
+          # 2. Package standalone CLI/App binary tarball
           tar -czvf "dist/MacOSGamingApp-${TAG_NAME}-macos-arm64.tar.gz" -C "${BIN_DIR}" MacOSGamingApp
           
-          # Generate SHA-256 checksums
+          # 3. Package real native macOS .app bundle into zip
+          chmod +x scripts/package_app.sh
+          ./scripts/package_app.sh "${VERSION}" dist "${BIN_DIR}"
+          
+          # 4. Verify generated .app bundle structure
+          chmod +x scripts/verify_app_bundle.sh
+          ./scripts/verify_app_bundle.sh dist/MacOSGamingApp.app
+          
+          # 5. Generate SHA-256 checksums across all archives
           cd dist
-          shasum -a 256 *.tar.gz > "checksums-${TAG_NAME}.txt"
+          shasum -a 256 *.tar.gz *.zip > "checksums-${TAG_NAME}.txt"
           cd ..
           
           ls -la dist/
 
+      - name: Prepare Release Notes Body
+        run: |
+          TAG_NAME="${GITHUB_REF_NAME}"
+          cat << EOF > dist/release_notes.md
+          ### 📱 Download the App (Desktop GUI)
+          Download the native Apple Silicon desktop application (supports double-click launch and macOS Dock integration):
+          - **[MacOSGamingApp-${TAG_NAME}-macos-arm64.zip](https://github.com/NicolasBecasAzagra/MacOSGaming/releases/download/${TAG_NAME}/MacOSGamingApp-${TAG_NAME}-macos-arm64.zip)**
+
+          \`\`\`bash
+          # Quick Terminal Download & Launch:
+          curl -L -O "https://github.com/NicolasBecasAzagra/MacOSGaming/releases/download/${TAG_NAME}/MacOSGamingApp-${TAG_NAME}-macos-arm64.zip"
+          unzip "MacOSGamingApp-${TAG_NAME}-macos-arm64.zip"
+          open "MacOSGamingApp.app"
+          \`\`\`
+
+          ---
+
+          ### 💻 Download the CLI (\`macosgaming\`)
+          Download the standalone command-line binary for terminal workflows, automated scripting, and CI:
+          - **[macosgaming-${TAG_NAME}-macos-arm64.tar.gz](https://github.com/NicolasBecasAzagra/MacOSGaming/releases/download/${TAG_NAME}/macosgaming-${TAG_NAME}-macos-arm64.tar.gz)**
+
+          \`\`\`bash
+          # Quick Terminal Download & Run:
+          curl -L -O "https://github.com/NicolasBecasAzagra/MacOSGaming/releases/download/${TAG_NAME}/macosgaming-${TAG_NAME}-macos-arm64.tar.gz"
+          tar -xzvf "macosgaming-${TAG_NAME}-macos-arm64.tar.gz"
+          chmod +x macosgaming
+          ./macosgaming doctor
+          \`\`\`
+
+          ---
+
+          ### 🔐 Integrity Verification
+          Verify SHA-256 checksums against \`checksums-${TAG_NAME}.txt\`:
+          \`\`\`bash
+          shasum -a 256 -c checksums-${TAG_NAME}.txt
+          \`\`\`
+          EOF
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          body_path: dist/release_notes.md
           files: |
             dist/*.tar.gz
+            dist/*.zip
             dist/*.txt
           generate_release_notes: true
           draft: false
