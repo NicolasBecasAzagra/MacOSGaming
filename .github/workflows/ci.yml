@@ -164,8 +164,10 @@ jobs:
 
       - name: Verify App Executable Binary
         run: |
-          test -x .build/release/MacOSGamingApp
-          echo "MacOSGamingApp binary successfully verified."
+          BIN_DIR=$(swift build -c release --show-bin-path)
+          echo "Release binary directory: $BIN_DIR"
+          test -x "$BIN_DIR/MacOSGamingApp"
+          echo "MacOSGamingApp binary successfully verified at $BIN_DIR/MacOSGamingApp."
 
 
 
