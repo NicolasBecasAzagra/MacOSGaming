@@ -8,7 +8,6 @@
 
 # Xcode / Swift
 .build/
-Packages/
 *.xcodeproj
 *.xcworkspace
 xcuserdata/

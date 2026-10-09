@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - 'feat/**'
+      - 'fix/**'
+      - 'docs/**'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    name: Build & Test on macOS (Apple Silicon)
+    runs-on: macos-14
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode Version
+        run: |
+          if [ -d "/Applications/Xcode_16.1.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
+          elif [ -d "/Applications/Xcode_16.0.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+          elif [ -d "/Applications/Xcode_16.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
+          fi
+          xcode-select -p
+
+      - name: Show Swift Toolchain
+        run: |
+          swift --version
+          uname -a
+
+      - name: Validate Game Profile JSON Schemas
+        run: |
+          for f in data/profiles/*.json; do
+            if [ "$f" != "data/profiles/schema.json" ]; then
+              echo "Validating JSON syntax: $f"
+              plutil -lint "$f" || python3 -m json.tool "$f" > /dev/null
+            fi
+          done
+
+      - name: Build MacOSGaming (Core & CLI)
+        run: swift build -v
+
+      - name: Run Unit Tests
+        run: swift test -v
+
+      - name: Run Smoke Test on CLI
+        run: |
+          .build/debug/macosgaming doctor
+          .build/debug/macosgaming list
+          .build/debug/macosgaming info valorant
+          .build/debug/macosgaming test-run elden-ring --offline
