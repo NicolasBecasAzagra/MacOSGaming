@@ -45,12 +45,16 @@ To protect the integrity of the project, users, and contributors, the following 
 
 ## 4. Policy Regarding Apple Proprietary Software & D3DMetal
 
-1. **No Redistribution:** Apple’s Game Porting Toolkit and its underlying `D3DMetal.framework` / `libd3dshared.dylib` components are proprietary software covered by Apple’s *Game Porting Toolkit Evaluation License Agreement*.
-2. **Developer-Only Local Detection:**
-   - MacOSGaming does not download, mirror, or repackage Apple Game Porting Toolkit binaries.
-   - The software only contains detection routines to identify if the user—in their personal capacity as a registered Apple Developer—has downloaded and mounted the official evaluation DMG from Apple Developer Downloads.
-3. **Open-Source Priority:**
-   - For DirectX 11 translation, the project defaults to **DXMT**, a fully open-source translation layer licensed under LGPL v2.1+ / MIT.
+1. **License Scope & Evaluation Limitations:**  
+   Apple’s Game Porting Toolkit (GPTK) and its proprietary components (`D3DMetal.framework`, `libd3dshared.dylib`) are governed by the [Apple Game Porting Toolkit Evaluation License Agreement](https://developer.apple.com/games/). This agreement explicitly restricts software usage *"solely for the purpose of developing, testing, or evaluating video games for use on Apple-branded products"*. It does not license general end-user gaming distribution.
+2. **Default Recommended Paths vs. D3DMetal:**  
+   - MacOSGaming **does not distribute, download, or recommend D3DMetal as a general end-user gaming solution**.  
+   - The default, supported, and recommended path is 100% open source: **Wine-CX with DXMT (Direct3D 11 to Metal) and DXVK-macOS**.  
+   - For commercial users seeking supported commercial translation, **CodeWeavers CrossOver** (operating under its own independent commercial licensing and upstream Wine contributions) is the recommended third-party alternative.  
+   - D3DMetal is treated exclusively as an **"opción avanzada bajo tu propia responsabilidad y licencia"** (advanced developer option strictly under the user's own legal responsibility and evaluation license).
+3. **Download Availability & Account Clarification:**  
+   - Anyone with a standard Apple ID can access developer downloads on [developer.apple.com](https://developer.apple.com) without requiring a paid Apple Developer Program subscription.  
+   - However, downloading GPTK legally binds the individual to Apple's Evaluation License Agreement. MacOSGaming never automates this download and only provides path detection if a developer has already mounted their evaluation DMG locally.
 
 ---
 

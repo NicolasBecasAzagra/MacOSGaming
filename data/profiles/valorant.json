@@ -18,7 +18,7 @@
     "environment_variables": {}
   },
   "sources": [
-    "Riot Games Support: Vanguard Architecture and System Requirements (2024-2026)",
-    "Apple Developer: Rosetta 2 and Darwin Kernel Architecture (User Mode vs Ring 0)"
+    "https://en.wikipedia.org/wiki/Valorant",
+    "https://developer.apple.com/documentation/apple-silicon/about-the-rosetta-translation-environment"
   ]
 }

@@ -80,8 +80,8 @@ public final class GameProfileRepository: @unchecked Sendable {
             policyNotice: "Valorant requires the kernel-level anti-cheat Riot Vanguard (vgk.sys), TPM 2.0, Secure Boot, and physical x86 Windows. It cannot run in Wine or virtual machines. MacOSGaming strictly blocks launching this game locally. Please use a physical Windows PC.",
             recommendedRuntime: RecommendedRuntime(graphicsBackend: .d3dmetalUserProvided, environmentVariables: [:]),
             sources: [
-                "Riot Games Support: Vanguard Architecture and System Requirements (2024-2026)",
-                "Apple Developer: Rosetta 2 and Darwin Kernel Architecture (User Mode vs Ring 0)"
+                "https://en.wikipedia.org/wiki/Valorant",
+                "https://developer.apple.com/documentation/apple-silicon/about-the-rosetta-translation-environment"
             ]
         ),
         GameProfile(
@@ -101,8 +101,8 @@ public final class GameProfileRepository: @unchecked Sendable {
             policyNotice: "League of Legends provides an official native macOS client maintained by Riot Games. While Windows requires Vanguard (since Patch 14.9), the macOS client is officially exempt and runs directly via Metal.",
             recommendedRuntime: RecommendedRuntime(graphicsBackend: .metalNative, environmentVariables: [:]),
             sources: [
-                "Riot Games Support Bulletin: Patch 14.9 Release Notes & macOS Vanguard Exemption Policy (May 2024)",
-                "Riot Games: Official League of Legends macOS Installer"
+                "https://en.wikipedia.org/wiki/League_of_Legends",
+                "https://developer.apple.com/metal/"
             ]
         ),
         GameProfile(
@@ -128,9 +128,8 @@ public final class GameProfileRepository: @unchecked Sendable {
                 ]
             ),
             sources: [
-                "Valve Steam Support: Counter-Strike 2 macOS Deprecation Notice (October 2023)",
-                "IGN: Counter-Strike 2 Drops Mac Support (October 2023)",
-                "MacRumors: Valve Drops Support for Counter-Strike 2 on Mac (October 2023)"
+                "https://store.steampowered.com/app/730/CounterStrike_2/",
+                "https://en.wikipedia.org/wiki/Counter-Strike_2"
             ]
         ),
         GameProfile(
@@ -150,8 +149,8 @@ public final class GameProfileRepository: @unchecked Sendable {
             policyNotice: "Dota 2 is officially supported natively on macOS through Steam, utilizing MoltenVK for Vulkan-to-Metal translation and running seamlessly on Apple Silicon via Rosetta 2.",
             recommendedRuntime: RecommendedRuntime(graphicsBackend: .metalNative, environmentVariables: [:]),
             sources: [
-                "Valve Steam Store: Dota 2 Mac System Requirements",
-                "MoltenVK Project: Valve Source 2 Engine Integration Notes"
+                "https://store.steampowered.com/app/570/Dota_2/",
+                "https://github.com/KhronosGroup/MoltenVK"
             ]
         ),
         GameProfile(
@@ -174,8 +173,8 @@ public final class GameProfileRepository: @unchecked Sendable {
                 environmentVariables: ["WINEMSYNC": "1"]
             ),
             sources: [
-                "FromSoftware / Bandai Namco: Elden Ring Steam System Requirements",
-                "Apple Developer: Game Porting Toolkit Evaluation Guidelines"
+                "https://store.steampowered.com/app/1245620/ELDEN_RING/",
+                "https://developer.apple.com/games/"
             ]
         ),
         GameProfile(
@@ -198,8 +197,8 @@ public final class GameProfileRepository: @unchecked Sendable {
                 environmentVariables: ["WINEMSYNC": "1"]
             ),
             sources: [
-                "Rockstar Support Bulletin: BattlEye Integration in Grand Theft Auto V (September 2024)",
-                "DXMT Project: Direct3D 11 compatibility notes with RAGE engine"
+                "https://store.steampowered.com/app/271590/Grand_Theft_Auto_V/",
+                "https://github.com/3Shain/dxmt"
             ]
         ),
         GameProfile(
@@ -222,8 +221,8 @@ public final class GameProfileRepository: @unchecked Sendable {
                 environmentVariables: ["WINEMSYNC": "1"]
             ),
             sources: [
-                "Psyonix Support: Rocket League Easy Anti-Cheat Integration (April 2024)",
-                "Psyonix: macOS and Linux Support Deprecation Bulletin (March 2020)"
+                "https://store.steampowered.com/app/252950/Rocket_League/",
+                "https://en.wikipedia.org/wiki/Rocket_League"
             ]
         ),
         GameProfile(
@@ -243,8 +242,8 @@ public final class GameProfileRepository: @unchecked Sendable {
             policyNotice: "Fortnite employs kernel-level anti-cheat (BattlEye & Easy Anti-Cheat) on Windows. The native Mac version has been frozen at Chapter 2 Season 3 (2020) and cannot connect to current season servers. The Windows version cannot run in Wine or virtual machines. Cloud gaming (GeForce NOW or Xbox Cloud Gaming) is required on Mac.",
             recommendedRuntime: RecommendedRuntime(graphicsBackend: .dxmt, environmentVariables: [:]),
             sources: [
-                "Epic Games Support: Fortnite on Mac Status and Cloud Alternatives",
-                "Epic Games: Anti-Cheat System Integration Bulletins"
+                "https://en.wikipedia.org/wiki/Fortnite",
+                "https://en.wikipedia.org/wiki/Easy_Anti-Cheat"
             ]
         )
     ]
